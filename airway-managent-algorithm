@@ -1,0 +1,1056 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Airway Management Algorithm — Adult · Pediatric · Obstetric</title><meta name="description" content="Evidence-based interactive airway management algorithm. ASA 2022, DAS 2015, OAA/DAS 2015, PALS 2020, DAS Paediatric 2015."><style>
+
+/* ── RESET & BASE ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f4f6fb;
+    color: #1a1a2e;
+    font-size: 13px;
+    min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.topbar-left h1 {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.3px;
+}
+
+.topbar-left p {
+    font-size: 0.67rem;
+    opacity: 0.65;
+    margin-top: 2px;
+}
+
+.print-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.print-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ── CONTAINER ── */
+.container {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 18px 14px 40px;
+}
+
+/* ── DISCLAIMER ── */
+.disclaimer {
+    background: #fff3cd;
+    border: 1.5px solid #ffc107;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-size: 0.72rem;
+    line-height: 1.6;
+    margin-bottom: 18px;
+    color: #5a4000;
+}
+
+.disclaimer b {
+    font-size: 0.75rem;
+}
+
+/* ── SOURCES BANNER ── */
+.sources-banner {
+    background: #eaf0fb;
+    border: 1.5px solid #aac4e8;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 0.7rem;
+    line-height: 1.7;
+    margin-bottom: 18px;
+    color: #1a3a5c;
+}
+
+.sources-banner b {
+    font-size: 0.73rem;
+}
+
+/* ── TABS ── */
+.tab-bar {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.tab {
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.73rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid #ccd;
+    background: #fff;
+    color: #666;
+    transition: all 0.15s;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.tab:hover {
+    border-color: #aab;
+    color: #333;
+}
+
+.tab.active {
+    background: #1a1a2e;
+    color: #fff;
+    border-color: #1a1a2e;
+}
+
+.tab.peds {
+    border-color: #2980b9;
+}
+
+.tab.peds:hover {
+    background: #ebf5fb;
+    color: #2980b9;
+}
+
+.tab.peds.active {
+    background: #2980b9;
+    border-color: #2980b9;
+    color: #fff;
+}
+
+.tab.obs {
+    border-color: #8e44ad;
+}
+
+.tab.obs:hover {
+    background: #f5eef8;
+    color: #8e44ad;
+}
+
+.tab.obs.active {
+    background: #8e44ad;
+    border-color: #8e44ad;
+    color: #fff;
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* ── FLOW ── */
+.flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+}
+
+.step-w {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.arr {
+    font-size: 1.25rem;
+    color: #aab;
+    margin: 1px 0;
+    line-height: 1.1;
+}
+
+.arr.g {
+    color: #27ae60;
+}
+
+.arr.r {
+    color: #e74c3c;
+}
+
+.arr.p {
+    color: #8e44ad;
+}
+
+/* ── BOXES ── */
+.box {
+    border-radius: 10px;
+    padding: 10px 16px;
+    text-align: center;
+    cursor: pointer;
+    border: 2px solid transparent;
+    max-width: 580px;
+    width: 100%;
+    transition: box-shadow 0.15s, transform 0.1s;
+    position: relative;
+}
+
+.box:hover {
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.13);
+    transform: translateY(-1px);
+}
+
+.box .t {
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 2px;
+}
+
+.box .s {
+    font-size: 0.71rem;
+    opacity: 0.82;
+}
+
+.box .hint {
+    font-size: 0.64rem;
+    opacity: 0.55;
+    margin-top: 3px;
+    font-style: italic;
+}
+
+.bstart {
+    background: #1a1a2e;
+    color: #fff;
+    border-color: #1a1a2e;
+}
+
+.bassess {
+    background: #eaf0fb;
+    border-color: #5588bb;
+}
+
+.bplan {
+    background: #eafaf1;
+    border-color: #27ae60;
+}
+
+.bwarn {
+    background: #fef9e7;
+    border-color: #e67e22;
+}
+
+.bdanger {
+    background: #fdecea;
+    border-color: #e74c3c;
+}
+
+.bcico {
+    background: #e74c3c;
+    color: #fff;
+    border-color: #c0392b;
+}
+
+.bpeds {
+    background: #ebf5fb;
+    border-color: #2980b9;
+}
+
+.bobs {
+    background: #f5eef8;
+    border-color: #8e44ad;
+}
+
+.bobs2 {
+    background: #8e44ad;
+    color: #fff;
+    border-color: #6c3483;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+    }
+
+    50% {
+        box-shadow: 0 0 0 8px rgba(231, 76, 60, 0);
+    }
+}
+
+.bcico {
+    animation: pulse 2s infinite;
+}
+
+/* ── DETAIL PANELS ── */
+.dp {
+    display: none;
+    background: #fff;
+    border: 1.5px solid #dde;
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin: 6px 0;
+    max-width: 580px;
+    width: 100%;
+    font-size: 0.76rem;
+    line-height: 1.7;
+    text-align: left;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+}
+
+.dp.open {
+    display: block;
+}
+
+.dp h4 {
+    font-weight: 700;
+    margin-bottom: 7px;
+    font-size: 0.81rem;
+}
+
+.dp ul {
+    padding-left: 16px;
+}
+
+.dp ol {
+    padding-left: 16px;
+}
+
+.dp li {
+    margin-bottom: 3px;
+}
+
+/* ── TAGS ── */
+.tag {
+    display: inline-block;
+    border-radius: 8px;
+    padding: 1px 8px;
+    font-size: 0.67rem;
+    font-weight: 700;
+    margin: 2px 2px 0 0;
+    background: #eaf0fb;
+    color: #334;
+}
+
+.tag.w {
+    background: #fef9e7;
+    color: #7a5c00;
+}
+
+.tag.d {
+    background: #fdecea;
+    color: #900;
+}
+
+.tag.g {
+    background: #eafaf1;
+    color: #1a5c30;
+}
+
+.tag.p {
+    background: #ebf5fb;
+    color: #154360;
+}
+
+.tag.obs {
+    background: #f5eef8;
+    color: #4a235a;
+}
+
+/* ── BADGE ── */
+.badge {
+    font-size: 0.59rem;
+    font-weight: 800;
+    background: #1a1a2e;
+    color: #fff;
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+.badge.p {
+    background: #2980b9;
+}
+
+.badge.o {
+    background: #8e44ad;
+}
+
+/* ── BRANCH ── */
+.branch {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap;
+    margin: 3px 0;
+}
+
+.bcol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    flex: 1;
+    min-width: 200px;
+    max-width: 280px;
+}
+
+.blabel {
+    font-size: 0.67rem;
+    font-weight: 800;
+    border-radius: 12px;
+    padding: 2px 10px;
+    margin-bottom: 2px;
+}
+
+.by {
+    background: #eafaf1;
+    color: #1e8449;
+    border: 1px solid #27ae60;
+}
+
+.bn {
+    background: #fdecea;
+    color: #922b21;
+    border: 1px solid #e74c3c;
+}
+
+/* ── TABLES ── */
+.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.74rem;
+    margin-top: 8px;
+}
+
+.tbl th {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 6px 9px;
+    text-align: left;
+}
+
+.tbl.p th {
+    background: #2980b9;
+}
+
+.tbl.o th {
+    background: #8e44ad;
+}
+
+.tbl td {
+    padding: 5px 9px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.tbl tr:last-child td {
+    border-bottom: none;
+}
+
+.tbl tr:nth-child(even) td {
+    background: #fafafa;
+}
+
+.hrow td {
+    background: #fef9e7 !important;
+    font-weight: 600;
+}
+
+/* ── SECTION HEADERS ── */
+.sh {
+    font-size: 0.92rem;
+    font-weight: 800;
+    margin: 18px 0 10px;
+    text-align: center;
+    padding-bottom: 7px;
+    border-bottom: 2px solid #eee;
+}
+
+.sh.p {
+    color: #2980b9;
+    border-color: #aed6f1;
+}
+
+.sh.o {
+    color: #8e44ad;
+    border-color: #d2b4de;
+}
+
+/* ── ALERT BOX ── */
+.alert {
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 13px;
+    font-size: 0.76rem;
+    line-height: 1.7;
+}
+
+.alert.r {
+    background: #fdecea;
+    border: 1.5px solid #e74c3c;
+}
+
+.alert.y {
+    background: #fef9e7;
+    border: 1.5px solid #e67e22;
+}
+
+.alert.p {
+    background: #ebf5fb;
+    border: 1.5px solid #2980b9;
+}
+
+.alert.obs {
+    background: #f5eef8;
+    border: 1.5px solid #8e44ad;
+}
+
+.alert b {
+    font-size: 0.8rem;
+}
+
+/* ── COMPARISON GRID ── */
+.cgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.cgrid-item {
+    background: #fff;
+    border: 1.5px solid #eee;
+    border-radius: 9px;
+    padding: 11px 13px;
+    font-size: 0.73rem;
+}
+
+.cgrid-item h5 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+@media (max-width: 540px) {
+    .cgrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ── LEGEND ── */
+.legend {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 14px;
+}
+
+.leg {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.69rem;
+    color: #555;
+}
+
+.ldot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+/* ── SHARE PANEL ── */
+.share-panel {
+    background: #fff;
+    border: 1.5px solid #dde;
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin-bottom: 18px;
+    font-size: 0.76rem;
+}
+
+.share-panel h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.share-panel p {
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.share-methods {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.share-method {
+    flex: 1;
+    min-width: 160px;
+    background: #f4f6fb;
+    border: 1.5px solid #dde;
+    border-radius: 9px;
+    padding: 11px 14px;
+    font-size: 0.73rem;
+}
+
+.share-method h4 {
+    font-size: 0.76rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.share-method p {
+    font-size: 0.7rem;
+    color: #666;
+    margin: 0;
+}
+
+/* ── FOOTER ── */
+.footer {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 16px;
+    border-top: 1.5px solid #eee;
+    font-size: 0.68rem;
+    color: #999;
+    line-height: 1.8;
+}
+
+.footer a {
+    color: #5588bb;
+    text-decoration: none;
+}
+
+/* ── PRINT ── */
+@media print {
+
+    .topbar,
+    .tab-bar,
+    .print-btn,
+    .share-panel {
+        display: none !important;
+    }
+
+    .tab-content {
+        display: block !important;
+    }
+
+    .dp {
+        display: block !important;
+    }
+
+    .box {
+        break-inside: avoid;
+    }
+
+    body {
+        background: #fff;
+        font-size: 11px;
+    }
+
+    .container {
+        padding: 0;
+    }
+
+    .sh {
+        margin-top: 24px;
+    }
+
+    .bcico {
+        animation: none !important;
+    }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+    .topbar {
+        padding: 10px 14px;
+    }
+
+    .topbar-left h1 {
+        font-size: 0.88rem;
+    }
+
+    .branch {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .bcol {
+        max-width: 100%;
+    }
+}
+
+</style></head><body><!-- TOP BAR --><div class="topbar"><div class="topbar-left"><h1>Airway Management Algorithm</h1><p>Adult · Pediatric · Obstetric &nbsp;
+|&nbsp;
+Evidence-Based Clinical Reference</p></div><button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button></div><div class="container"><!-- DISCLAIMER --><div class="disclaimer"><b>⚕ Clinical Disclaimer:</b>This tool is for educational and reference purposes only. It does not replace clinical judgment,
+institutional protocols,
+or direct patient assessment. Always follow your local hospital guidelines and the advice of senior clinicians. In emergencies,
+act — do not wait for a reference tool. </div><!-- EVIDENCE SOURCES --><div class="sources-banner"><b>Evidence Base:</b>Apfelbaum et al.,
+<i>Anesthesiology</i>2022 (ASA DAA) · Frerk et al.,
+<i>Br J Anaesth</i>2015 (DAS) · Mushambi et al.,
+<i>Anaesthesia</i>2015 (OAA/DAS) · Black et al.,
+<i>Paediatr Anaesth</i>2015 (DAS Paediatric) · AHA PALS 2020 · De Jong et al.,
+<i>AJRCCM</i>2013 (MACOCHA) · Driver et al.,
+<i>JAMA</i>2018 (Bougie RCT) · Cook et al.,
+<i>Br J Anaesth</i>2011 (NAP4) · Kinsella et al.,
+<i>Anaesthesia</i>2015 · Weiss et al.,
+<i>Lancet</i>2009 · MBRRACE-UK 2022 </div><!-- TABS --><div class="tab-bar"><div class="tab active" onclick="showTab('algo', this)">⚕ Algorithm Flow</div><div class="tab" onclick="showTab('assess', this)">📋 Assessment Tools</div><div class="tab" onclick="showTab('drugs', this)">💊 RSI Drugs</div><div class="tab" onclick="showTab('cico', this)">🚨 CICO Protocol</div><div class="tab peds" onclick="showTab('peds', this)">🧒 Pediatric</div><div class="tab obs" onclick="showTab('obs', this)">🤰 Obstetric</div></div><!-- ═══════════════════════════ ALGORITHM FLOW ═══════════════════════════ --><div id="tab-algo" class="tab-content active"><div class="legend"><div class="leg"><div class="ldot" style="background:#1a1a2e"></div>Start/End</div><div class="leg"><div class="ldot" style="background:#5588bb"></div>Assess</div><div class="leg"><div class="ldot" style="background:#27ae60"></div>Plan A–C (Success path)</div><div class="leg"><div class="ldot" style="background:#e67e22"></div>Caution / Decision</div><div class="leg"><div class="ldot" style="background:#e74c3c"></div>Emergency / Failure</div></div><div class="flow"><div class="step-w"><div class="box bstart" onclick="tog('d1')"><div class="t">Patient Requires Airway Management</div><div class="s">Emergent · Semi-Elective · Elective</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d1"><h4>Indications for Airway Intervention</h4><ul><li><b>Failure to maintain airway</b>— obstruction,
+loss of protective reflexes (GCS ≤8)</li><li><b>Failure to oxygenate</b>— SpO₂ &lt;
+90% despite high-flow O₂</li><li><b>Failure to ventilate</b>— rising PaCO₂,
+respiratory fatigue,
+exhaustion</li><li><b>Anticipated deterioration</b>— angioedema,
+burns,
+expanding hematoma,
+anaphylaxis</li><li><b>Specific populations:</b>see Pediatric and Obstetric tabs for adapted thresholds and indications</li></ul></div></div><div class="arr">↓</div><div class="step-w"><div class="box bassess" onclick="tog('d2')"><div class="t">📋 Airway Assessment</div><div class="s">LEMON · MOANS · RODS · SHORT · MACOCHA</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d2"><h4>Validated Prediction Tools</h4><ul><li><b>LEMON</b>(difficult laryngoscopy): Look,
+Evaluate 3-3-2,
+Mallampati,
+Obstruction,
+Neck mobility — Reed et al.,
+Acad Emerg Med 2005</li><li><b>MOANS</b>(difficult BVM): Mask seal,
+Obesity/Obstruction,
+Age &gt;
+55,
+No teeth,
+Stiff lungs</li><li><b>RODS</b>(difficult SGA): Restricted mouth opening,
+Obstruction,
+Distorted airway,
+Stiff</li><li><b>SHORT</b>(difficult cricothyrotomy): Surgery/scar,
+Hematoma,
+Obesity,
+Radiation,
+Tumour</li><li><b>MACOCHA score ≥3</b>predicts difficult ICU intubation — AUC 0.87;
+De Jong et al.,
+AJRCCM 2013</li></ul><p style="margin-top:7px"><span class="tag">Call for help early</span><span class="tag">Equipment check</span><span class="tag">Sniffing/optimal position</span><span class="tag">Consent patient</span></p></div></div><div class="arr">↓</div><div class="step-w"><div class="box bwarn" onclick="tog('d3')" style="border-radius:40px"><div class="t">⚠ Anticipated Difficult Airway?</div><div class="s">Based on assessment findings+history</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d3"><h4>Red-Flag Features Suggesting Difficult Airway</h4><ul><li>Mallampati III/IV · inter-incisor gap &lt;
+3 cm · thyromental distance &lt;
+6 cm</li><li>BMI &gt;
+35 · short neck · previous documented difficult intubation</li><li>Airway pathology: mass,
+abscess,
+angioedema,
+Ludwig's angina, C-spine disease</li>
+ <li>Trauma: facial/neck,
+blood/vomit in airway,
+C-spine precautions (neutral inline)</li><li><b>Obstetric:</b>Mallampati worsens 1–2 classes in labour — reassess late (see Obstetric tab)</li><li><b>Pediatric:</b>different anatomical landmarks — see Pediatric tab</li></ul></div></div><div class="branch"><div class="bcol"><div class="blabel by">YES — Anticipated Difficult</div><div class="arr g">↓</div><div class="box bwarn" onclick="tog('d4a')"><div class="t">Awake Intubation Strategy</div><div class="s">Maintain spontaneous breathing throughout</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d4a"><h4>Awake Intubation Options (DAS 2015)</h4><ul><li><b>Awake flexible bronchoscopy (FOB)</b>— gold standard for anticipated difficult airway;
+success rate &gt;
+97%</li><li><b>Awake video laryngoscopy</b>— faster;
+comparable in select cases with less severe difficulty</li><li><b>Awake tracheostomy</b>— severe obstruction where scope passage is unsafe;
+involves ENT/surgery</li></ul><p style="margin-top:7px"><b>Topicalisation:</b>4% lidocaine (max 9 mg/kg total);
+spray-as-you-go or nebulisation.<br><b>Sedation options:</b>Remifentanil TCI (Target: 1–2 ng/mL) or dexmedetomidine infusion (0.5–1 mcg/kg/hr).</p><p style="margin-top:5px"><span class="tag w">Obstetric: awake FOB preferred if time allows — see Obstetric tab</span></p></div></div><div class="bcol"><div class="blabel bn">NO — Proceed to RSI</div><div class="arr r">↓</div><div class="box bplan" onclick="tog('d4b')"><div class="t"><span class="badge">PLAN A</span>Preoxygenation → RSI</div><div class="s">Target SpO₂ &gt;
+95%,
+EtO₂ &gt;
+85%</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d4b"><h4>Preoxygenation (DAS 2015 / ACEP 2018)</h4><ul><li>3 min tidal breathing on 15 L/min NRB mask <b>OR</b>8 vital capacity breaths</li><li><b>High-flow nasal oxygen (HFNO) 60 L/min</b>during laryngoscopy (apnoeic oxygenation) — extends safe apnoea time;
+THRIVE trial: Patel &amp;
+Nouraei,
+Anaesthesia 2015</li><li>Head-up 20–30° — reduces aspiration risk and improves FRC</li><li>BVM with PEEP valve (5–10 cmH₂O) if SpO₂ marginal before RSI</li><li><b>Obstetric:</b>desaturation much faster — aggressive preoxygenation mandatory (see Obstetric tab)</li><li><b>Pediatric:</b>safe apnoea as short as 60–100 s in neonates (see Pediatric tab)</li></ul></div></div></div><div class="arr">↓</div><div class="step-w"><div class="box bplan" onclick="tog('d5')"><div class="t"><span class="badge">PLAN A</span>Direct / Video Laryngoscopy — Max 2 Attempts</div><div class="s">VL preferred · BURP · Bougie · Full NMB confirmed (TOF=0)</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d5"><h4>Optimising Intubation Attempts</h4><ul><li><b>Video laryngoscopy (VL)</b>recommended as first-line in predicted difficult airway (ASA 2022);
+improves Cormack–Lehane grade ≥1 in~80% of cases</li><li><b>Bougie use:</b>98% vs 87% first-pass success vs. stylet (Driver et al., JAMA 2018 — RCT, n=757)</li><li><b>BURP</b>(Backward, Upward, Rightward Pressure) or bimanual laryngoscopy to optimise glottic view</li><li>Limit to <b>maximum 2 intubation attempts</b>before declaring failure and moving to Plan B</li><li>Ensure full neuromuscular blockade at each attempt (Train-of-Four=0)</li><li>Call for help before second attempt if first failed</li></ul><p style="margin-top:7px"><span class="tag">CL grade I–II=favourable</span><span class="tag w">CL grade III–IV=difficult</span></p></div></div><div class="branch"><div class="bcol"><div class="blabel by">SUCCESS</div><div class="arr g">↓</div><div class="box bplan" onclick="tog('d6a')"><div class="t">Confirm ETT — Waveform Capnography</div><div class="s">Gold-standard confirmation · CXR · Secure tube</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d6a"><h4>ETT Position Confirmation</h4><ul><li><b>Waveform capnography</b>— mandatory;
+sensitivity and specificity 100% in perfusing rhythm (most reliable method)</li><li>Bilateral breath sounds auscultation (mid-axillary lines)</li><li>Symmetric chest rise</li><li>SpO₂ improvement trend</li><li>Chest X-ray: ETT tip should be 3–5 cm above carina</li><li>Document: tube size,
+depth at lips,
+Cormack–Lehane grade,
+number of attempts,
+devices used</li></ul></div></div><div class="bcol"><div class="blabel bn">FAILED ×2</div><div class="arr r">↓</div><div class="box bwarn" onclick="tog('d6b')"><div class="t">CALL FOR HELP · Declare "Cannot Intubate" </div><div class="s">Maintain oxygenation. Do not persist.</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d6b"><h4>After Failed Intubation (DAS 2015 — Transition to Plan B)</h4><ul><li>Stop attempting intubation — each additional attempt causes airway trauma and worsens conditions</li><li>Maintain oxygen delivery via face mask (two-person BVM technique if needed)</li><li>Call senior anaesthetist / ENT / airway team NOW — earlier is always better</li><li>Consider waking patient if elective procedure and haemodynamically stable</li><li>Declare failure aloud — cognitive aids and team debriefing improve outcomes</li></ul></div></div></div><div class="arr">↓</div><div class="step-w"><div class="box bwarn" onclick="tog('d7')"><div class="t"><span class="badge">PLAN B</span>Supraglottic Airway (SGA / LMA)</div><div class="s">2nd-generation SGA preferred · Max 2 attempts</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d7"><h4>Supraglottic Airway Devices</h4><ul><li><b>2nd-generation SGA</b>(i-gel, LMA ProSeal, LMA Supreme) preferred — incorporate gastric drainage channel,
+significantly reducing aspiration risk</li><li>i-gel: no inflatable cuff;
+insertion success rate~97%;
+oropharyngeal seal pressure 24–26 cmH₂O</li><li>Can be used as conduit for bronchoscope-guided intubation (intubating LMA / ILMA Fastrach)</li><li>Size selection: female → 4;
+male → 5 (weight-based guide on packaging)</li><li><b>Obstetric:</b>SGA is not a substitute for RSI in the full-stomach patient;
+use only as rescue ventilation bridge</li><li><b>Pediatric:</b>i-gel validated ≥2 kg;
+see Pediatric tab for weight-based sizing</li></ul></div></div><div class="branch"><div class="bcol"><div class="blabel by">VENTILATING</div><div class="arr g">↓</div><div class="box bplan" onclick="tog('d8a')"><div class="t">Maintain O₂ via SGA</div><div class="s">Awaken · Plan definitive airway when safe</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d8a"><h4>Options Once Oxygenating via SGA</h4><ul><li><b>Elective case:</b>Wake patient up → plan definitive airway (awake FOB) in controlled setting with full team</li><li><b>Emergency case:</b>Attempt intubation via SGA conduit with flexible bronchoscope,
+or maintain as temporising measure until senior help arrives</li><li>Always document and communicate the difficult airway;
+patient should carry a Difficult Airway Alert card</li><li><b>Obstetric:</b>if CS must proceed with SGA → make explicit decision (see Obstetric tab)</li></ul></div></div><div class="bcol"><div class="blabel bn">NOT VENTILATING</div><div class="arr r">↓</div><div class="box bdanger" onclick="tog('d8b')"><div class="t"><span class="badge">PLAN C</span>Optimise Face Mask Ventilation</div><div class="s">2-person technique · OPA/NPA · PEEP · Sugammadex?</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d8b"><h4>Plan C — Face Mask Ventilation</h4><ul><li>Two-person BVM: one clinician maintains two-hand EC-clamp mask seal,
+second squeezes bag</li><li>Insert oropharyngeal airway (OPA) and/or nasopharyngeal airway (NPA)</li><li>PEEP valve 5–10 cmH₂O to maintain oxygenation</li><li><b>Sugammadex 16 mg/kg IV</b>if rocuronium used — reverses neuromuscular blockade in~3 minutes,
+allowing wakeup attempt (not effective for succinylcholine)</li><li>If even partial ventilation achievable → buys time for senior help and planning</li></ul></div></div></div><div class="arr r">↓</div><div class="step-w"><div class="box bcico" onclick="tog('d9')"><div class="t">🚨 CICO — Cannot Intubate,
+Cannot Oxygenate</div><div class="s">PLAN D → Immediate Front-of-Neck Access (FONA) — Do not delay</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="d9"><h4>PLAN D — Emergency Front-of-Neck Access (DAS 2015)</h4><p style="margin-bottom:8px;font-weight:600;color:#c0392b">Do not delay FONA. Each minute of hypoxia causes irreversible neurological damage. (NAP4, Cook et al., 2011)</p><ul><li><b>Scalpel–Bougie–Tube technique (DAS 2015 recommended):</b><ol style="margin-top:5px"><li>Extend neck;
+identify cricothyroid membrane (CTM) using "laryngeal handshake" </li><li>Horizontal stab incision through skin <b>and</b>CTM with size 10 scalpel</li><li>Hook caudal tracheal ring with finger or tracheal hook;
+maintain caudal traction</li><li>Insert bougie caudally through CTM incision into trachea</li><li>Railroad 6.0 mm cuffed ETT over bougie into trachea</li><li>Inflate cuff,
+ventilate,
+confirm with waveform capnography</li><li>Secure tube;
+obtain CXR</li></ol></li><li><b>Pediatric CICO:</b>needle cricothyrotomy preferred &lt;
+8 yrs (CTM too small for scalpel technique) — see Pediatric tab</li><li><b>Obstetric CICO:</b>same scalpel-bougie-tube;
+CTM may be harder to palpate — use ultrasound if immediately available</li></ul><p style="margin-top:8px"><span class="tag d">Declare CICO aloud</span><span class="tag d">Call ENT/Surgery</span><span class="tag d">Document fully</span><span class="tag d">Debrief team</span></p></div></div></div><!-- /flow --></div><!-- /tab-algo --><!-- ═══════════════════════════ ASSESSMENT TOOLS ═══════════════════════════ --><div id="tab-assess" class="tab-content"><div class="sh">MACOCHA Score — Difficult Intubation in ICU</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:10px">De Jong et al.,
+<i>Am J Respir Crit Care Med</i>2013 · AUC 0.87 · Validated in 1,
+000 ICU patients · Sensitivity 73%,
+Specificity 89% at cut-off ≥3</p><table class="tbl"><tr><th>Criterion</th><th>Points</th></tr><tr><td>Mallampati score III or IV</td><td>5</td></tr><tr><td>Obstructive Sleep Apnoea syndrome</td><td>2</td></tr><tr><td>Reduced mouth opening (&lt; 3 cm)</td><td>1</td></tr><tr><td>Coma (GCS ≤8)</td><td>1</td></tr><tr><td>Hypoxia (SpO₂ &lt; 80% before intubation)</td><td>1</td></tr><tr><td>Non-anaesthetist operator</td><td>1</td></tr><tr><td>Cervical spine limitation</td><td>1</td></tr><tr class="hrow"><td><b>Score ≥3=Difficult Intubation predicted (call for help, prepare for difficult airway)</b></td><td><b>Max 12</b></td></tr></table><div class="sh" style="margin-top:22px">LEMON Assessment — Emergency Airway</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:10px">Reed et al.,
+<i>Acad Emerg Med</i>2005 · Sensitivity 85% for difficult laryngoscopy in ED setting</p><table class="tbl"><tr><th>Letter</th><th>Criterion Assessed</th><th>Positive Finding (Difficult)</th></tr><tr><td><b>L</b>ook externally</td><td>Facial trauma,
+large tongue,
+beard,
+receding jaw,
+large incisors</td><td>Any abnormality noted</td></tr><tr><td><b>E</b>valuate 3-3-2</td><td>Inter-incisor gap / Hyoid-chin distance / Hyoid-thyroid notch</td><td>&lt;
+3 / &lt;
+3 / &lt;
+2 fingers respectively</td></tr><tr><td><b>M</b>allampati</td><td>Samsoon-Young modification Class I–IV (tongue base to soft palate visibility)</td><td>Class III or IV</td></tr><tr><td><b>O</b>bstruction</td><td>Mass,
+peritonsillar abscess,
+angioedema,
+haematoma,
+foreign body</td><td>Any present</td></tr><tr><td><b>N</b>eck mobility</td><td>Extension range;
+C-collar / cervical pathology in situ</td><td>Extension &lt;
+35° or restricted</td></tr></table><div class="sh" style="margin-top:22px">Additional Mnemonics</div><table class="tbl"><tr><th>Mnemonic</th><th>For Predicting</th><th>Criteria</th></tr><tr><td><b>MOANS</b></td><td>Difficult BVM ventilation</td><td>Mask seal poor · Obesity/Obstruction · Age &gt;
+55 · No teeth · Stiff (lung/chest)</td></tr><tr><td><b>RODS</b></td><td>Difficult SGA insertion</td><td>Restricted mouth opening · Obstruction · Distorted airway · Stiff (reduced compliance)</td></tr><tr><td><b>SHORT</b></td><td>Difficult cricothyrotomy</td><td>Surgery/scar · Hematoma · Obesity · Radiation changes · Tumour</td></tr></table></div><!-- ═══════════════════════════ RSI DRUGS ═══════════════════════════ --><div id="tab-drugs" class="tab-content"><div class="sh">RSI Drug Reference — Adults</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:10px">ACEP/EMCREG Clinical Policy · Brown et al.,
+<i>Ann Emerg Med</i>2018 · Always verify against local formulary and patient weight</p><table class="tbl"><tr><th>Drug</th><th>Adult Dose (IV)</th><th>Onset</th><th>Key Notes &amp;
+Contraindications</th></tr><tr><td><b>Etomidate</b></td><td>0.3 mg/kg</td><td>30–60 s</td><td>Haemodynamically stable;
+single-dose adrenal suppression — use with caution in septic shock (Jabre et al., Lancet 2009)</td></tr><tr><td><b>Ketamine</b></td><td>1.5–2 mg/kg</td><td>45–60 s</td><td>Drug of choice in hypotension,
+bronchospasm;
+safe in trauma;
+crosses placenta minimally at RSI dose;
+dissociative — preserve airway reflexes relatively</td></tr><tr><td><b>Propofol</b></td><td>1–2 mg/kg</td><td>15–30 s</td><td>Avoid in hypotension (vasodilation);
+reduces ICP and CMRO₂;
+excellent airway reflex suppression;
+preferred elective RSI</td></tr><tr><td><b>Thiopentone</b></td><td>3–5 mg/kg</td><td>20–30 s</td><td>Reduces ICP;
+haemodynamic compromise (vasodilation, myocardial depression);
+limited availability globally;
+historical obstetric gold standard</td></tr><tr><td><b>Succinylcholine</b></td><td>1.5 mg/kg</td><td>45–60 s</td><td>Fastest offset (~10 min);
+<b>CI:</b>burns &gt;
+48h,
+crush injury &gt;
+5d,
+denervation injury,
+hyperkalaemia,
+myopathies,
+personal/family history of malignant hyperthermia,
+pseudocholinesterase deficiency</td></tr><tr><td><b>Rocuronium</b></td><td>1.2 mg/kg (RSI dose)</td><td>60–90 s</td><td>Non-depolarising;
+fully reversible with sugammadex 16 mg/kg;
+preferred NMB if succinylcholine contraindicated;
+equivalent RSI conditions at 1.2 mg/kg</td></tr><tr class="hrow"><td><b>Sugammadex</b></td><td>16 mg/kg (rescue CICO) · 4 mg/kg (routine reversal)</td><td>~3 min (full reversal)</td><td>Reverses rocuronium/vecuronium;
+NOT effective for succinylcholine;
+can abort RSI in CICO if rocuronium used;
+safe in pregnancy</td></tr></table><p style="font-size:0.69rem;color:#888;margin-top:10px;text-align:center">See Pediatric tab for weight-based dosing in children. These are adult reference doses only.</p></div><!-- ═══════════════════════════ CICO PROTOCOL ═══════════════════════════ --><div id="tab-cico" class="tab-content"><div class="sh" style="color:#e74c3c;border-color:#f5b7b1">🚨 CICO — Front-of-Neck Access (FONA)</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:12px">DAS 2015 — Frerk et al.,
+<i>Br J Anaesth</i>2015 · NAP4 — Cook et al.,
+<i>Br J Anaesth</i>2011 · CICO incidence~1:22,
+000 anaesthetics</p><div class="alert r"><b>🔴 Scalpel–Bougie–Tube Technique (DAS 2015 — Recommended First-Line Adult FONA)</b><ol style="padding-left:18px;margin-top:8px;line-height:2.0"><li>Extend neck;
+identify CTM by <b>"laryngeal handshake" </b>(thumb and middle finger stabilise thyroid cartilage; index finger identifies CTM)</li><li>Horizontal stab incision through skin <b>AND</b>CTM with size 10 scalpel (single confident motion)</li><li>Hook caudal tracheal ring with hooked index finger or tracheal hook;
+maintain firm <b>caudal</b>traction</li><li>Insert bougie caudally through the CTM incision into trachea (feel for tracheal rings)</li><li>Railroad <b>6.0 mm cuffed ETT</b>over bougie into trachea</li><li>Remove bougie;
+inflate cuff;
+ventilate immediately</li><li>Confirm with <b>waveform capnography</b>;
+secure tube;
+obtain CXR</li></ol></div><table class="tbl"><tr><th>Technique</th><th>Evidence Level</th><th>Time to Ventilation</th><th>Key Limitation</th></tr><tr><td><b>Scalpel-bougie-tube</b></td><td>DAS 2015 Grade B;
+highest success in cadaveric studies</td><td>~30–60 s (trained)</td><td>Requires deliberate practice on manikins/cadavers</td></tr><tr><td>Commercial kits (Melker, Portex)</td><td>Acceptable Seldinger-technique alternative</td><td>~60–90 s</td><td>More procedural steps under hypoxic stress</td></tr><tr><td>Needle cric (14G IV cannula)</td><td>NAP4: 65% failure rate in adults;
+temporising only</td><td>~30 s (if successful)</td><td>CO₂ retention,
+kinking,
+barotrauma;
+not for &gt;
+30 min</td></tr><tr><td>Surgical tracheostomy</td><td>Definitive airway;
+if ENT immediately present</td><td>3–5 min</td><td>Slow;
+requires surgical expertise;
+not first-line in CICO</td></tr><tr class="hrow"><td><b>Pediatric (&lt; 8 yrs)</b></td><td>Needle cric preferred — CTM too small for adult scalpel technique</td><td>Variable</td><td>High failure rate;
+20G in neonates;
+frequent barotrauma</td></tr></table><div class="alert y" style="margin-top:14px"><b>NAP4 Key Findings</b>(Cook et al., Br J Anaesth 2011 — 184 major airway complications): <ul style="padding-left:16px;margin-top:6px"><li>25% of CICO events resulted in death or hypoxic brain damage</li><li>Majority of deaths associated with <b>delayed decision to perform FONA</b></li><li>Needle cricothyrotomy failed in majority of adult cases when used as primary CICO rescue</li><li>Poor identification of CTM was a recurrent failure point — practice anatomy identification regularly</li></ul></div></div><!-- ═══════════════════════════ PEDIATRIC ═══════════════════════════ --><div id="tab-peds" class="tab-content"><div class="sh p">🧒 Pediatric Airway — Adaptations &amp;
+Algorithm</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:12px">Black et al.,
+<i>Paediatr Anaesth</i>2015 (DAS Paediatric) · AHA PALS 2020 · Weiss et al.,
+<i>Lancet</i>2009 · Riva et al.,
+<i>Paediatr Anaesth</i>2018 </p><div class="alert p"><b>Key Anatomical Differences Versus Adults — Clinical Impact</b><ul style="margin-top:8px;padding-left:17px;line-height:1.9"><li><b>Large occiput</b>→ in neonates/infants,
+places neck in flexion when supine;
+requires <b>shoulder roll</b>to achieve neutral/sniffing position. Children &gt;
+2 yrs → standard pillow under head</li><li><b>Proportionally larger tongue</b>relative to oral cavity → obstructs airway more easily;
+OPA/NPA critical;
+jaw thrust highly effective</li><li><b>Anterior,
+cephalad larynx</b>(C3–C4 at birth vs. C5–C6 in adults) → steeper angle for laryngoscopy;
+blade must be directed more anteriorly</li><li><b>Omega-shaped,
+floppy epiglottis</b>in infants → straight (Miller) blade preferred &lt;
+2 yrs to directly elevate epiglottis and visualise glottis</li><li><b>Narrowest point at cricoid ring</b>(subglottic) in children &lt;
+10 yrs — not at glottis as in adults → cuffed tube sizing and cuff inflation pressure critical (≤20 cmH₂O)</li><li><b>Short trachea</b>(~5–6 cm in neonates) → right main-stem intubation common;
+always confirm bilateral breath sounds immediately after intubation</li><li><b>Higher O₂ consumption per kg+smaller FRC</b>→ desaturation occurs far faster than adults,
+especially in neonates and infants</li><li><b>Obligate nasal breathers</b>(infants &lt; 4–6 months) → nasal obstruction from blood/secretions is dangerous;
+NPA+gentle suction critical</li></ul></div><div class="sh p">Equipment Sizing by Age / Weight</div><p style="font-size:0.71rem;color:#555;text-align:center;margin-bottom:9px">Cuffed ETT formula: (Age/4)+3.5 · Depth at lip (cm): (Age/2)+12 · Weight formula: (Age+4) × 2 kg (Luscombe &amp; Owens) · Always have Broselow tape available</p><table class="tbl p"><tr><th>Age / Weight</th><th>ETT Size (cuffed)</th><th>ETT Depth (lip)</th><th>i-gel / LMA Size</th><th>Laryngoscope Blade</th></tr><tr><td>Premature (&lt; 1 kg)</td><td>2.5 (uncuffed)</td><td>5.5–6.5 cm</td><td>i-gel 1 (≥2 kg only)</td><td>Miller 00</td></tr><tr><td>Neonate 1–2 kg</td><td>3.0 (uncuffed or cuffed)</td><td>7–8 cm</td><td>i-gel 1</td><td>Miller 0</td></tr><tr><td>Neonate 2–3 kg</td><td>3.0–3.5 (cuffed)</td><td>8–9 cm</td><td>i-gel 1</td><td>Miller 0</td></tr><tr><td>3–12 months</td><td>3.5 (cuffed)</td><td>10–11 cm</td><td>i-gel 1.5</td><td>Miller 1</td></tr><tr><td>1–2 years</td><td>4.0 (cuffed)</td><td>11–12 cm</td><td>i-gel 2</td><td>Miller 1 / Mac 1</td></tr><tr><td>2–5 years</td><td>(Age/4)+3.5 cuffed</td><td>(Age/2)+12 cm</td><td>i-gel 2 / 2.5</td><td>Miller 2 / Mac 2</td></tr><tr><td>6–10 years</td><td>(Age/4)+3.5 cuffed</td><td>(Age/2)+12 cm</td><td>i-gel 2.5 / 3</td><td>Mac 2</td></tr><tr><td>&gt;
+10 years / adult-sized</td><td>(Age/4)+3.5 or adult sizing</td><td>(Age/2)+12 cm</td><td>i-gel 3 / 4</td><td>Mac 3</td></tr><tr class="hrow"><td colspan="5"><b>Evidence:</b>Cuffed ETTs preferred at ALL ages including neonates — Weiss et al.,
+<i>Lancet</i>2009 (RCT, n=2, 246 children; no increase in post-extubation stridor with cuffed tubes). Maintain cuff pressure ≤20 cmH₂O. Have one size smaller available.</td></tr></table><div class="sh p">RSI Drugs — Pediatric Weight-Based Dosing</div><p style="font-size:0.71rem;color:#555;text-align:center;margin-bottom:9px">PALS 2020 · Verify all doses against current guidelines and local formulary · Broselow tape recommended in emergency</p><table class="tbl p"><tr><th>Drug</th><th>Pediatric Dose (IV)</th><th>Notes &amp;
+Specific Cautions</th></tr><tr><td><b>Ketamine</b></td><td>1–2 mg/kg IV · 4–6 mg/kg IM</td><td><b>Drug of choice</b>for pediatric emergency RSI;
+maintains airway tone relatively;
+bronchodilator (useful in asthma/bronchospasm);
+IM route if no IV access;
+avoid in hypertensive crisis,
+elevated ICP (controversial)</td></tr><tr><td><b>Propofol</b></td><td>2–3 mg/kg IV (&lt; 3 yrs: up to 4 mg/kg)</td><td>Excellent conditions for elective intubation;
+<b>avoid prolonged infusion</b>in critically ill children (Propofol Infusion Syndrome — PRIS);
+cardiovascular depression — ensure adequate volume</td></tr><tr><td><b>Etomidate</b></td><td>0.3 mg/kg IV</td><td>Use with caution &lt;
+10 yrs;
+adrenocortical suppression more pronounced in neonates/infants;
+many paediatric anaesthesia centres avoid in &lt;
+10 yrs;
+not recommended by some guidelines</td></tr><tr><td><b>Thiopentone</b></td><td>4–6 mg/kg IV (neonate: 2–4 mg/kg)</td><td>Reduces ICP;
+useful in status epilepticus;
+cardiovascular depression in volume-depleted states;
+limited global availability</td></tr><tr><td><b>Succinylcholine</b></td><td><b>2 mg/kg IV</b>(≤10 kg) · 1.5 mg/kg IV (&gt; 10 kg) · 4 mg/kg IM (if no IV)</td><td>⚠ <b>Higher mg/kg dose required</b>in young children (larger volume of distribution). <b>Pre-treat with atropine 0.02 mg/kg IV</b>(min 0.1 mg, max 0.5 mg) in all &lt;
+5 yrs and in older children receiving repeat doses — prevents vagally-mediated bradycardia. CI: same as adults+undiagnosed muscle disease (risk of hyperkalaemic cardiac arrest)</td></tr><tr><td><b>Rocuronium</b></td><td>1.2 mg/kg IV (RSI dose)</td><td>Preferred NMB when succinylcholine contraindicated;
+fully reversible with sugammadex;
+onset slightly slower than succinylcholine but reliable at 1.2 mg/kg</td></tr><tr><td><b>Atropine</b></td><td>0.02 mg/kg IV (min 0.1 mg, max 0.5 mg)</td><td>Pre-RSI in all &lt;
+5 yrs;
+before laryngoscopy in neonates (high vagal tone → bradycardia common);
+before succinylcholine in older children</td></tr><tr class="hrow"><td><b>Sugammadex</b></td><td>16 mg/kg IV (rescue CICO) · 4 mg/kg IV (routine reversal TOF ≥2)</td><td>Evidence supports use in children ≥2 yrs;
+limited data in &lt;
+2 yrs — use with caution;
+can rescue CICO if rocuronium used (reversal in ~3 min at 16 mg/kg)</td></tr></table><div class="sh p">Preoxygenation &amp;
+Safe Apnoea Times</div><div class="alert p"><b>Pediatric Apnoea Tolerance (Approximate — based on healthy, well-preoxygenated patients)</b><ul style="padding-left:17px;margin-top:7px;line-height:1.95"><li><b>Neonates (term):</b>SpO₂ falls to 85% within <b>60–100 seconds</b>of apnoea (Kennedy et al., Paediatr Anaesth 2019)</li><li><b>Infants 3–12 months:</b>approximately <b>70–100 seconds</b></li><li><b>Children 1–8 yrs:</b>approximately <b>2–4 minutes</b>(improved significantly with HFNO)</li><li><b>Older children &gt;
+8 yrs:</b>approaching adult tolerance (~4–6 min with HFNO)</li><li><b>HFNO in children:</b>paediatric prongs (1–2 L/kg/min, max 60 L/min) during laryngoscopy reduces desaturation — Riva et al.,
+Paediatr Anaesth 2018</li><li><b>Position:</b>Shoulder roll in infants ≤6 months (large occiput);
+sniffing position in toddlers;
+pillow under head in older children</li><li><b>Two-finger BVM jaw thrust</b>technique preferred in infants;
+avoid compression of soft submental tissues</li></ul></div><div class="sh p">Pediatric Difficult Airway &amp;
+CICO — Surgical Airway</div><table class="tbl p"><tr><th>Age Group</th><th>Preferred CICO Technique</th><th>Device / ETT Size</th><th>Evidence &amp;
+Rationale</th></tr><tr><td><b>Neonate / Infant &lt;
+1 yr</b></td><td>Needle cricothyrotomy (20–22G IV cannula)</td><td>20G cannula+jet ventilator 5 psi</td><td>CTM not palpable and too small for any surgical technique</td></tr><tr><td><b>1–8 years</b></td><td>Needle cricothyrotomy (14–18G IV cannula)</td><td>14–18G cannula+jet ventilation</td><td>CTM identifiable but narrow;
+scalpel not safe at this age</td></tr><tr><td><b>&gt;
+8 years</b></td><td>Scalpel-bougie-tube (adult DAS technique)</td><td>5.0–6.0 mm cuffed ETT via CTM</td><td>CTM adult-sized;
+standard technique applies</td></tr><tr class="hrow"><td colspan="4"><b>Jet ventilation:</b>5–10 psi in young children;
+I:E ratio 1:4;
+watch for barotrauma,
+hyperinflation,
+and inadequate CO₂ clearance. Limit to &lt;
+30 min — this is a bridge to definitive airway only.</td></tr></table><div class="sh p">Pediatric Difficult Airway Prediction</div><div class="alert p"><p>Unlike adults,
+no validated scoring system exists specifically for pediatric difficult airway. Key red flags include:</p><ul style="padding-left:17px;margin-top:7px;line-height:1.9"><li><b>Syndromes:</b>Pierre Robin,
+Treacher Collins,
+Down syndrome (macroglossia + atlantoaxial instability),
+Goldenhar,
+Mucopolysaccharidoses</li><li><b>Acquired:</b>epiglottitis,
+croup (subglottic oedema),
+burns,
+Ludwig's angina, foreign body</li>
+ <li><b>Anatomical:</b>micrognathia,
+macroglossia,
+cleft palate,
+choanal atresia,
+laryngomalacia</li><li>History of previous difficult intubation or prolonged laryngoscopy in child's medical notes</li>
+ <li>Always involve senior paediatric anaesthetist early;
+consider ENT standby for known syndromic children</li></ul></div></div><!-- ═══════════════════════════ OBSTETRIC ═══════════════════════════ --><div id="tab-obs" class="tab-content"><div class="sh o">🤰 Obstetric Difficult Airway — OAA/DAS 2015</div><p style="font-size:0.72rem;color:#555;text-align:center;margin-bottom:12px">Mushambi et al.,
+<i>Anaesthesia</i>2015 · Kinsella et al.,
+<i>Anaesthesia</i>2015 · MBRRACE-UK 2022 (Knight et al., <i>BJOG</i> 2022) · Hawkins et al.,
+<i>Anesthesiology</i>1997 </p><div class="alert obs"><b>Why Obstetric Airway Is Uniquely Hazardous</b><ul style="margin-top:8px;padding-left:17px;line-height:1.9"><li><b>Failed intubation rate 1:224</b>obstetric GA (vs. 1:2, 500 general surgical — Kinsella et al., Anaesthesia 2015)</li><li><b>Rapid O₂ desaturation:</b>FRC reduced by 20%+O₂ consumption increased 20% at term → critical hypoxia in &lt;
+3 minutes without preoxygenation</li><li><b>Full stomach / aspiration risk:</b>progesterone reduces lower oesophageal sphincter (LOS) tone;
+gastric motility delayed in labour;
+Mendelson syndrome (acid aspiration pneumonitis) risk</li><li><b>Mallampati worsens 1–2 classes during labour</b>due to mucosal oedema from fluid loading,
+Valsalva,
+and pushing — Kuczkowski et al.,
+J Clin Anesth 2003</li><li><b>Airway mucosal oedema</b>from IV fluid loading,
+pre-eclampsia (especially),
+protracted pushing</li><li><b>Breast enlargement</b>in late pregnancy may physically obstruct insertion of standard laryngoscope handle — use short-handled blade or polio blade</li><li><b>Aortocaval compression</b>in supine position — reduces venous return and cardiac output → must maintain left lateral tilt 15° at all times</li><li><b>MBRRACE-UK 2022:</b>airway-related deaths remain a leading cause of direct anaesthetic maternal mortality in the UK</li><li><b>GA mortality 17× higher than regional anaesthesia</b>for caesarean section — Hawkins et al.,
+Anesthesiology 1997</li></ul></div><div class="sh o">Physiological Changes Affecting Airway Management</div><div class="cgrid"><div class="cgrid-item"><h5 style="color:#8e44ad">🫁 Respiratory Changes</h5><ul style="padding-left:14px;line-height:1.9;font-size:0.72rem"><li>FRC ↓ 20% (diaphragmatic elevation by gravid uterus)</li><li>O₂ consumption ↑ 20% (metabolic demand)</li><li>Tidal volume ↑ 40% (progesterone-driven)</li><li>Respiratory rate ↑ 15%</li><li>PaCO₂ ↓~32 mmHg (compensated respiratory alkalosis)</li><li>PaO₂ ↑ slightly due to hyperventilation</li></ul></div><div class="cgrid-item"><h5 style="color:#8e44ad">👄 Airway Anatomy</h5><ul style="padding-left:14px;line-height:1.9;font-size:0.72rem"><li>Mallampati class increases 1–2 grades</li><li>Mucosal oedema → smaller glottis aperture</li><li>Use smaller ETT: <b>6.0–7.0 mm cuffed</b></li><li>Short-handled or polio-blade laryngoscope</li><li>Pre-eclampsia → severe glottic/supraglottic oedema possible</li><li>Nasal passages engorged → avoid nasal intubation</li></ul></div><div class="cgrid-item"><h5 style="color:#8e44ad">🍽 GI / Aspiration Risk</h5><ul style="padding-left:14px;line-height:1.9;font-size:0.72rem"><li>Gastroparesis in active labour</li><li>LOS tone reduced (progesterone)</li><li>Intragastric pressure increased</li><li><b>Na citrate 30 mL PO</b>immediately pre-GA</li><li>Ranitidine 150 mg PO / omeprazole 40 mg PO pre-elective GA</li><li>Metoclopramide 10 mg IV if nausea</li></ul></div><div class="cgrid-item"><h5 style="color:#8e44ad">🫀 Cardiovascular</h5><ul style="padding-left:14px;line-height:1.9;font-size:0.72rem"><li>Aortocaval compression in supine position</li><li><b>Left lateral tilt 15° mandatory</b>(wedge under right hip)</li><li>CO increases ↑ 40% at term</li><li>Blood volume ↑ 40–45% (↑ plasma &gt; ↑ RBCs → dilutional anaemia)</li><li>HR ↑ 15–20 bpm at term</li></ul></div></div><div class="sh o">OAA/DAS 2015 — Obstetric Airway Algorithm</div><div class="flow" style="margin-top:10px"><div class="step-w"><div class="box bobs" onclick="tog('ob1')"><div class="t"><span class="badge o">OB 1</span>Pre-Anaesthetic Assessment — ALL Obstetric Patients</div><div class="s">At booking AND reassess in active labour</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob1"><h4>Obstetric Airway Assessment (OAA/DAS 2015)</h4><ul><li>Assess at <b>booking</b>(first trimester) and again on arrival to labour ward (Mallampati worsens significantly)</li><li>Document: Mallampati class,
+mouth opening,
+neck mobility,
+BMI,
+dentition,
+previous difficult intubation,
+snoring/OSA</li><li><b>Pre-eclampsia:</b>assess frequently — airway can worsen rapidly;
+early regional anaesthesia strongly preferred</li><li><b>BMI &gt;
+40:</b>highest risk category for failed intubation+aspiration;
+establish regional early;
+notify senior anaesthetist</li><li>Ensure resuscitation-ready environment for all obstetric GA (senior anaesthetist, full airway trolley, VL, HFNO available)</li><li>Consider early epidural insertion in all high-risk patients to avoid emergency GA</li></ul><p style="margin-top:6px"><span class="tag obs">Na Citrate 30 mL PO if time allows</span><span class="tag obs">Ranitidine / Omeprazole</span><span class="tag obs">Metoclopramide if nausea</span></p></div></div><div class="arr p">↓</div><div class="step-w"><div class="box bobs" onclick="tog('ob2')"><div class="t"><span class="badge o">OB 2</span>Regional Anaesthesia — Strongly Preferred</div><div class="s">Spinal · Epidural · CSE · Avoid GA wherever possible</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob2"><h4>Regional Anaesthesia Evidence</h4><ul><li><b>Spinal anaesthesia:</b>fastest for category 1 CS when regional is possible;
+onset 3–5 min with hyperbaric bupivacaine 0.5% 2.2–2.5 mL+fentanyl 25 mcg+morphine 100 mcg</li><li><b>Epidural top-up:</b>if labour epidural already in situ;
+15–20 mL lidocaine 2%+adrenaline ± fentanyl 50–100 mcg;
+onset 10–15 min;
+faster than establishing new spinal in urgent cases</li><li><b>CSE (combined spinal-epidural):</b>benefits of both techniques;
+useful when duration uncertain or high-risk cases requiring flexibility</li><li><b>Evidence:</b>GA mortality risk 17× higher than regional for CS (Hawkins et al., Anesthesiology 1997)</li><li>Early epidural insertion in high-risk patients (predicted difficult airway, pre-eclampsia, obesity, multiple pregnancy) to avoid emergency GA</li></ul><p style="margin-top:6px"><span class="tag obs">Absolute CI to regional: coagulopathy (platelets &lt; 80),
+patient refusal,
+active infection at site,
+haemodynamic instability</span></p></div></div><div class="arr p">↓</div><div class="step-w"><div class="box bwarn" onclick="tog('ob3')" style="border-radius:40px"><div class="t">⚠ GA Required?</div><div class="s">Category 1 emergency · Regional failed/contraindicated · Maternal collapse</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob3"><h4>Indications for Obstetric GA</h4><ul><li>Category 1 CS with immediate threat to maternal or fetal life and insufficient time for regional</li><li>Failed regional block despite top-up attempts (conversion rate ~1.5–3%)</li><li>Contraindications to regional: coagulopathy (DIC, HELLP, thrombocytopaenia &lt; 80),
+patient refusal,
+active sepsis at site</li><li>Maternal cardiac arrest → perimortem CS under GA</li><li>Massive haemorrhage with haemodynamic instability precluding regional</li></ul></div></div><div class="branch"><div class="bcol"><div class="blabel by">If time allows</div><div class="arr p">↓</div><div class="box bobs" onclick="tog('ob4a')"><div class="t">Anticipated Difficult — Awake Technique</div><div class="s">Awake FOB · Awake VL · Awake tracheostomy</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob4a"><h4>Awake Intubation in Obstetrics</h4><ul><li>Use when <b>predicted difficult airway AND time permits</b>(not true category 1 emergency)</li><li><b>Awake FOB preferred</b>— maintains spontaneous breathing and airway tone throughout;
+fetal O₂ delivery maintained</li><li>Topicalise carefully: 4% lidocaine spray — lower ceiling in pregnancy (max ~4–5 mg/kg; reduced protein binding changes free drug levels)</li><li>Sedation: <b>Remifentanil TCI</b>(target 1–2 ng/mL, titrate carefully) — fetal respiratory depression if &gt;
+2 ng/mL maintained;
+have naloxone for neonate</li><li><b>Dexmedetomidine</b>emerging evidence;
+crosses placenta less than benzodiazepines;
+minimal fetal respiratory effects</li><li>Avoid benzodiazepines — significant neonatal respiratory depression</li><li>Document clearly;
+communicate to obstetric and neonatal teams;
+ensure neonatologist aware of sedation given</li></ul></div></div><div class="bcol"><div class="blabel bn">Emergency GA</div><div class="arr r">↓</div><div class="box bobs2" onclick="tog('ob4b')"><div class="t"><span class="badge o">OB RSI</span>Modified RSI for Obstetrics</div><div class="s">Left tilt · Cricoid pressure · Preoxygenate · VL first-line</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob4b"><h4>Obstetric RSI Protocol (OAA/DAS 2015)</h4><ul><li><b>Left lateral tilt 15°</b>(firm wedge under right hip) throughout — prevents aortocaval compression</li><li><b>Preoxygenation:</b>3 min tidal breathing on tight-fitting mask at 10–15 L/min OR 4 × vital capacity breaths;
+target SpO₂ 100% and EtO₂ ≥0.87 (87%);
+HFNO 60 L/min maintained during laryngoscopy if available</li><li><b>Cricoid pressure (Sellick manoeuvre):</b>10 N awake,
+increased to 30 N on induction — OAA/DAS 2015 maintains recommendation despite controversy;
+<b>release immediately</b>if it worsens laryngoscopy view or prevents effective BVM ventilation</li><li><b>Induction agents:</b><ul><li>Thiopentone 4–5 mg/kg (historical gold standard; reduces ICP; haemodynamic stability)</li><li>Propofol 2 mg/kg (acceptable; slight cardiovascular depression)</li><li>Ketamine 1–1.5 mg/kg (hypotension, asthma, haemorrhage)</li></ul></li><li><b>NMB:</b>Succinylcholine 1.5 mg/kg preferred (fastest offset ~10 min — reduces fetal exposure; allows return of spontaneous ventilation if CICO) OR rocuronium 1.2 mg/kg (with sugammadex 16 mg/kg available for rescue)</li><li><b>ETT size 6.0–7.0 mm cuffed</b>(smaller glottis from oedema);
+have 5.5 mm immediately available</li><li><b>Video laryngoscopy as first-line</b>— OAA/DAS 2015 recommendation;
+reduces failed intubation rate</li><li>Short-handled or polio-blade laryngoscope to navigate around enlarged breasts</li></ul></div></div></div><div class="arr r">↓</div><div class="step-w"><div class="box bwarn" onclick="tog('ob5')" style="border-radius:40px"><div class="t">⚠ Failed Obstetric Intubation?</div><div class="s">Incidence: 1 in 224 obstetric GA cases (Kinsella et al., 2015)</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob5"><h4>Context and Response</h4><ul><li>Failed intubation: 1:224 obstetric GA vs. 1:2,
+500 general surgical — 10× higher risk</li><li>Higher rates in: BMI &gt;
+40,
+pre-eclampsia,
+emergency category 1,
+failed regional conversion under time pressure</li><li><b>Declare "failed intubation" aloud after maximum 2 attempts</b></li><li>Do not persist — escalating airway trauma worsens all subsequent options</li><li>Maintain oxygenation as the immediate priority</li></ul></div></div><div class="arr p">↓</div><div class="step-w"><div class="box bobs" onclick="tog('ob6')"><div class="t"><span class="badge o">OB CRITICAL</span>Wake Up vs. Proceed with Surgery?</div><div class="s">Weigh maternal AND fetal risk — most critical obstetric airway decision</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob6"><h4>The OAA/DAS 2015 "Wake vs. Proceed" Decision Framework</h4><table style="width:100%;border-collapse:collapse;font-size:0.72rem;margin-top:6px"><tr style="background:#8e44ad;color:#fff"><th style="padding:6px 9px;text-align:left">Factor</th><th style="padding:6px 9px;text-align:left">Favour WAKE UP (abort GA, plan definitive airway)</th><th style="padding:6px 9px;text-align:left">Favour PROCEED (maintain anaesthesia, use SGA)</th></tr><tr><td style="padding:5px 9px;border-bottom:1px solid #eee"><b>Fetal condition</b></td><td style="padding:5px 9px;border-bottom:1px solid #eee">Reassuring CTG;
+no immediate fetal compromise</td><td style="padding:5px 9px;border-bottom:1px solid #eee">Severe fetal distress;
+cord prolapse;
+massive abruption;
+fetal bradycardia</td></tr><tr><td style="padding:5px 9px;border-bottom:1px solid #eee"><b>Maternal condition</b></td><td style="padding:5px 9px;border-bottom:1px solid #eee">Haemodynamically stable;
+oxygenating well via SGA or mask</td><td style="padding:5px 9px;border-bottom:1px solid #eee">Maternal haemorrhage;
+cannot wake safely;
+CICO situation</td></tr><tr><td style="padding:5px 9px;border-bottom:1px solid #eee"><b>Airway status</b></td><td style="padding:5px 9px;border-bottom:1px solid #eee">SGA ventilating effectively;
+oxygenating;
+no CICO</td><td style="padding:5px 9px;border-bottom:1px solid #eee">Cannot ventilate via SGA or mask;
+CICO imminent</td></tr><tr><td style="padding:5px 9px"><b>Surgical stage</b></td><td style="padding:5px 9px">Not yet incised;
+early in procedure</td><td style="padding:5px 9px">Uterus already open;
+baby partially delivered;
+surgeon cannot safely stop</td></tr></table><p style="margin-top:9px"><span class="tag obs">OAA/DAS 2015: if oxygenating via SGA and no immediate fetal threat → waking up is usually the safer maternal option</span></p><p style="margin-top:5px;font-size:0.71rem;color:#666">If proceeding with SGA: use 2nd-gen SGA;
+gastric drainage;
+light plane of anaesthesia only;
+senior anaesthetist must be present;
+plan definitive airway at end of surgery</p></div></div><div class="arr r">↓</div><div class="step-w"><div class="box bobs2" onclick="tog('ob7')"><div class="t">🚨 Obstetric CICO → FONA</div><div class="s">Scalpel-bougie-tube · Maternal life is priority · Declare,
+call for help</div><div class="hint">Click to expand ▾</div></div><div class="dp" id="ob7"><h4>Obstetric CICO — Front-of-Neck Access (OAA/DAS 2015)</h4><ul><li><b>Maternal life takes absolute priority</b>in CICO — delivery of fetus is secondary to establishing maternal oxygenation</li><li>Scalpel-bougie-tube as per DAS 2015;
+use 6.0 mm cuffed ETT</li><li><b>CTM identification may be harder:</b>neck oedema,
+obesity,
+engorgement of structures → use <b>ultrasound if immediately available</b>(pre-procedure marking strongly recommended in high-risk patients)</li><li><b>Release cricoid pressure</b>before attempting FONA — it distorts anatomy</li><li><b>Perimortem caesarean section (PMCS):</b>if maternal cardiac arrest occurs — deliver within 4–5 minutes of arrest to improve maternal resuscitation outcomes and prevent fetal anoxia (Katz et al., NEJM 2005)</li><li>Post-event: immediate team debrief;
+full documentation;
+notify neonatal team of events;
+arrange Difficult Airway Alert card and follow-up for mother;
+report through critical incident system</li></ul><p style="margin-top:7px"><span class="tag d">Declare CICO aloud</span><span class="tag d">Call senior anaesthetist</span><span class="tag d">Call ENT/Surgery</span><span class="tag d">Debrief entire team</span></p></div></div></div><!-- /obs flow --><div class="sh o" style="margin-top:22px">Pre-Eclampsia — Specific Airway Considerations</div><div class="alert y"><b>Pre-eclampsia creates the highest-risk obstetric airway scenario</b><ul style="padding-left:17px;margin-top:8px;line-height:1.9"><li><b>Severe glottic and supraglottic oedema</b>— Mallampati can reach class IV even in patients with no prior airway difficulty;
+oedema can develop or worsen rapidly</li><li>Always use <b>6.0 mm ETT</b>as starting size;
+have 5.5 mm and 5.0 mm immediately available;
+avoid nasal airways</li><li><b>Blunt hypertensive response to laryngoscopy:</b>can precipitate intracerebral haemorrhage (leading cause of pre-eclampsia death) — use alfentanil 10–20 mcg/kg IV 90 s before laryngoscopy OR remifentanil 1–1.5 mcg/kg IV bolus (careful: causes fetal respiratory depression; inform neonatal team)</li><li><b>Magnesium sulphate potentiates neuromuscular blockade</b>— non-depolarising NMB doses may need reduction;
+monitor TOF scrupulously;
+maintain at TOF ratio &gt;
+0.9 before extubation</li><li><b>Extubation:</b>awake extubation mandatory in all pre-eclamptic patients;
+senior anaesthetist must be present;
+severe oedema may worsen post-delivery (fluid redistribution, oxytocin);
+consider HDU/ICU post-extubation monitoring</li><li><b>HELLP syndrome:</b>check platelets,
+PT,
+APTT,
+fibrinogen before any airway instrumentation;
+avoid regional if platelets &lt;
+80,
+000 or coagulopathy;
+
+if urgent GA required with coagulopathy — accept higher airway trauma risk but proceed</li><li>Ensure foetal heart rate monitoring is maintained throughout induction and laryngoscopy where possible</li></ul></div></div><!-- /tab-obs --><!-- FOOTER --><div class="footer"><p><b>Airway Management Algorithm</b>— Adult · Pediatric · Obstetric</p><p>Evidence Base: ASA 2022 · DAS 2015 · OAA/DAS 2015 · DAS Paediatric 2015 · PALS 2020 · NAP4 2011 · MBRRACE-UK 2022</p><p>For educational and reference use only. Not a substitute for clinical judgment or institutional protocols.</p><p>Generated May 2026 · Compiled by Claude (Anthropic) for <b>Abdelwahab</b></p></div></div><!-- /container --><script>function tog(id) {
+    const el=document.getElementById(id);
+    if (el) el.classList.toggle('open');
+}
+
+function showTab(name, el) {
+    document.querySelectorAll('.tab-content').forEach(t=> t.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t=> t.classList.remove('active'));
+    const content=document.getElementById('tab-' + name);
+    if (content) content.classList.add('active');
+    el.classList.add('active');
+
+    window.scrollTo({
+        top: 0, behavior: 'smooth'
+    });
+}
+
+</script></body></html>
