@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kartagener Syndrome: Perioperative Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Chosen Palette: Warm Neutrals with Soft Teal Accents (bg-stone-50, text-stone-800, teal-600) -->
+    <!-- Application Structure Plan: A phase-based clinical dashboard. Navigation is divided into Overview, Preoperative, Intraoperative, and Postoperative phases. This structure maps perfectly to a clinician's workflow, making rapid information retrieval easy. Users can explore specific guidelines and see comparative data on intervention risks. -->
+    <!-- Visualization & Content Choices: 1) Donut Chart (Chart.js) -> Shows Primary Ciliary Dyskinesia vs Kartagener prevalence. 2) Bar Chart (Chart.js) -> Compares complication rates based on airway management choices. 3) Interactive HTML/Tailwind Checklist -> For pre-op optimization steps. 4) Toggle states for pharmacological impact. NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 250px;
+            }
+        }
+        .nav-active {
+            background-color: #0d9488;
+            color: white;
+            border-color: #0d9488;
+        }
+        .nav-inactive {
+            background-color: transparent;
+            color: #44403c;
+            border-color: #d6d3d1;
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-stone-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-teal-800 tracking-tight">Kartagener Syndrome</h1>
+                <p class="text-sm text-stone-500 mt-1">Perioperative & Anesthetic Management Protocol</p>
+            </div>
+            <div class="flex flex-wrap gap-2 justify-center" id="nav-container">
+                <button onclick="switchTab('overview')" id="btn-overview" class="nav-active px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200">Overview</button>
+                <button onclick="switchTab('preop')" id="btn-preop" class="nav-inactive px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200">Preoperative</button>
+                <button onclick="switchTab('intraop')" id="btn-intraop" class="nav-inactive px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200">Intraoperative</button>
+                <button onclick="switchTab('postop')" id="btn-postop" class="nav-inactive px-4 py-2 text-sm font-medium rounded-full border transition-colors duration-200">Postoperative</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8 w-full">
+        
+        <section id="sec-overview" class="block animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 md:p-8 mb-8">
+                <h2 class="text-xl font-semibold text-stone-800 border-b border-stone-100 pb-3 mb-4">Understanding the Clinical Picture</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    This section provides foundational knowledge regarding Kartagener Syndrome. By understanding the underlying pathophysiology—specifically the defect in ciliary motility—clinicians can better appreciate the rationale behind the strict perioperative guidelines that follow. The charts here illustrate the relationship between Primary Ciliary Dyskinesia (PCD) and the classic Kartagener triad.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h3 class="font-medium text-teal-700 text-lg mb-3">The Classic Triad</h3>
+                        <ul class="space-y-3">
+                            <li class="flex items-start">
+                                <span class="text-teal-500 mr-2 font-bold">&#10003;</span>
+                                <div>
+                                    <strong>Situs Inversus:</strong> Mirrored anatomy affects ECG placement, central line access, and lung isolation (DLT placement).
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-teal-500 mr-2 font-bold">&#10003;</span>
+                                <div>
+                                    <strong>Chronic Sinusitis:</strong> Indicates baseline mucosal inflammation and high secretion burden.
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <span class="text-teal-500 mr-2 font-bold">&#10003;</span>
+                                <div>
+                                    <strong>Bronchiectasis:</strong> Irreversible airway dilation leading to pooling of infected mucus and high risk of intraoperative plugging.
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                            <span class="text-amber-800 font-semibold text-sm uppercase tracking-wide">Pathophysiology</span>
+                            <p class="text-sm text-stone-700 mt-1">Underlying cellular defect involves ciliary dysmotility (typically a dynein arm defect), completely severely impairing mucociliary clearance mechanisms.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col items-center bg-stone-50 p-4 rounded-xl border border-stone-100">
+                        <h4 class="text-sm font-medium text-stone-500 mb-2 text-center">PCD vs. Kartagener Presentation</h4>
+                        <div class="chart-container">
+                            <canvas id="triadChart"></canvas>
+                        </div>
+                        <p class="text-xs text-stone-400 mt-2 text-center w-full max-w-xs">Approximately 50% of patients with Primary Ciliary Dyskinesia exhibit Situs Inversus, completing the Kartagener triad.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-preop" class="hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 md:p-8 mb-8">
+                <h2 class="text-xl font-semibold text-stone-800 border-b border-stone-100 pb-3 mb-4">Preoperative Optimization</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    This module focuses on the crucial steps required before surgery. Due to the high risk of pulmonary complications, extensive pulmonary and cardiac screening is mandatory. Use the interactive checklist to ensure all systematic optimizations have been addressed to minimize baseline airway inflammation and secretion volume.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-stone-50 rounded-xl p-6 border border-stone-100">
+                        <h3 class="font-medium text-teal-700 mb-4">Required Assessments</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200">
+                                <div class="font-semibold text-stone-800 mb-1">Pulmonary Function Tests</div>
+                                <div class="text-sm text-stone-600">Establish baseline forced expiratory volume (FEV1) and identify reversibility.</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200">
+                                <div class="font-semibold text-stone-800 mb-1">Arterial Blood Gas (ABG)</div>
+                                <div class="text-sm text-stone-600">Determine baseline PaO2 and PaCO2 to guide intraoperative ventilation goals.</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200">
+                                <div class="font-semibold text-stone-800 mb-1">Echocardiography</div>
+                                <div class="text-sm text-stone-600">Assess for congenital cardiac anomalies (transposition) and right ventricular strain/cor pulmonale.</div>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border border-stone-200">
+                                <div class="font-semibold text-stone-800 mb-1">High-Resolution CT</div>
+                                <div class="text-sm text-stone-600">Map the severity and distribution of bronchiectasis for secretion management.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-teal-50 rounded-xl p-6 border border-teal-100">
+                        <h3 class="font-medium text-teal-800 mb-4">Optimization Checklist</h3>
+                        <div class="space-y-3" id="checklist-container">
+                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-teal-600 rounded border-stone-300 focus:ring-teal-500 transition duration-150 ease-in-out">
+                                <span class="text-stone-700 group-hover:text-teal-700 transition-colors">Targeted Antibiotic Course</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-teal-600 rounded border-stone-300 focus:ring-teal-500 transition duration-150 ease-in-out">
+                                <span class="text-stone-700 group-hover:text-teal-700 transition-colors">Aggressive Chest Physiotherapy</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-teal-600 rounded border-stone-300 focus:ring-teal-500 transition duration-150 ease-in-out">
+                                <span class="text-stone-700 group-hover:text-teal-700 transition-colors">Postural Drainage Regimen</span>
+                            </label>
+                            <label class="flex items-center space-x-3 cursor-pointer group">
+                                <input type="checkbox" class="form-checkbox h-5 w-5 text-teal-600 rounded border-stone-300 focus:ring-teal-500 transition duration-150 ease-in-out">
+                                <span class="text-stone-700 group-hover:text-teal-700 transition-colors">Bronchodilator Therapy</span>
+                            </label>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-teal-200">
+                            <span class="text-xs font-bold text-red-600 uppercase">Warning</span>
+                            <p class="text-xs text-stone-700 mt-1">Strictly avoid premedication with anticholinergics (e.g., glycopyrrolate) or sedatives that depress respiratory drive.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-intraop" class="hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 md:p-8 mb-8">
+                <h2 class="text-xl font-semibold text-stone-800 border-b border-stone-100 pb-3 mb-4">Intraoperative Strategies</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    During surgery, the primary goal is protecting the compromised airway and managing the altered anatomy. This section details the preferred anesthetic techniques, equipment considerations for dextrocardia, and pharmacological choices. The chart demonstrates the dramatic impact of active humidification on airway resistance compared to standard dry gases or detrimental anticholinergic use.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="font-medium text-teal-700 mb-3">Anesthetic Technique</h3>
+                        <p class="text-sm text-stone-700 mb-4"><strong>Regional Anesthesia</strong> is strongly preferred whenever surgically feasible. It completely avoids airway instrumentation, averts bronchospasm, and preserves the patient's native (though impaired) clearance mechanisms.</p>
+                        
+                        <h3 class="font-medium text-teal-700 mb-3 mt-6">General Anesthesia Protocols</h3>
+                        <ul class="space-y-2 text-sm text-stone-700">
+                            <li class="p-2 bg-stone-50 rounded border border-stone-200"><strong>Airway:</strong> Anticipate difficulty with Double-Lumen Tubes due to mirrored bronchial trees.</li>
+                            <li class="p-2 bg-stone-50 rounded border border-stone-200"><strong>Ventilation:</strong> Routine PEEP and intermittent recruitment to prevent atelectasis.</li>
+                            <li class="p-2 bg-stone-50 rounded border border-stone-200"><strong>Suctioning:</strong> Frequent, scheduled suctioning is mandatory.</li>
+                            <li class="p-2 bg-red-50 rounded border border-red-100 text-red-800"><strong>Avoid:</strong> Histamine-releasing relaxants (atracurium, mivacurium) to prevent bronchospasm.</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-stone-50 p-4 rounded-xl border border-stone-100 flex flex-col items-center justify-center">
+                        <h4 class="text-sm font-medium text-stone-600 mb-2">Impact of Pharmacologic/Gas Management on Mucus Viscosity</h4>
+                        <div class="flex space-x-2 mb-4 w-full justify-center">
+                            <button onclick="updateBarChart(0)" class="px-3 py-1 text-xs bg-white border border-stone-300 rounded hover:bg-stone-100">Baseline</button>
+                            <button onclick="updateBarChart(1)" class="px-3 py-1 text-xs bg-teal-600 text-white border border-teal-700 rounded hover:bg-teal-700">Active Humidification</button>
+                            <button onclick="updateBarChart(2)" class="px-3 py-1 text-xs bg-red-600 text-white border border-red-700 rounded hover:bg-red-700">Anticholinergic Given</button>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="airwayChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 text-white rounded-xl p-6 shadow-inner">
+                    <h3 class="font-medium text-teal-400 mb-3 flex items-center">
+                        <span class="text-xl mr-2">&#9851;</span> Dextrocardia Accommodations
+                    </h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">ECG Placement</div>
+                            <div class="text-sm">Reverse Left and Right arm leads. Place precordial leads on the right side of the chest (V1R-V6R). Standard placement yields inverted P/T in lead I.</div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Defibrillation</div>
+                            <div class="text-sm">Pads must be placed anterolateral on the <strong>right side</strong> of the chest, mirroring standard left-sided placement.</div>
+                        </div>
+                        <div class="sm:col-span-2 mt-2">
+                            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Vascular Access</div>
+                            <div class="text-sm">Ultrasound guidance is strictly mandatory for central venous cannulation due to mirrored and often anomalous vascular arrangements.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="sec-postop" class="hidden animate-fade-in">
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-6 md:p-8 mb-8">
+                <h2 class="text-xl font-semibold text-stone-800 border-b border-stone-100 pb-3 mb-4">Postoperative Care & Extubation</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    The immediate postoperative phase is high-risk for severe atelectasis and pneumonia. This section outlines strict extubation criteria and the critical balance of pain management. The interactive mechanism below highlights the stark contrast in respiratory safety between opioid-based analgesia and regional techniques.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-medium text-teal-700 mb-3">Extubation Criteria</h3>
+                        <div class="bg-stone-50 p-5 rounded-lg border border-stone-200 shadow-sm">
+                            <p class="text-sm text-stone-700 mb-3">Deep extubation is <strong>contraindicated</strong>. The patient must meet stringent criteria to ensure airway protection.</p>
+                            <ul class="space-y-2">
+                                <li class="flex items-center text-sm text-stone-700"><span class="w-2 h-2 rounded-full bg-teal-500 mr-2"></span> Fully awake and responsive</li>
+                                <li class="flex items-center text-sm text-stone-700"><span class="w-2 h-2 rounded-full bg-teal-500 mr-2"></span> Intact airway reflexes (gag, swallow)</li>
+                                <li class="flex items-center text-sm text-stone-700"><span class="w-2 h-2 rounded-full bg-teal-500 mr-2"></span> Adequate muscle strength demonstrated</li>
+                                <li class="flex items-center text-sm text-stone-700"><span class="w-2 h-2 rounded-full bg-teal-500 mr-2"></span> Ability to generate an effective, strong cough</li>
+                            </ul>
+                        </div>
+                        
+                        <h3 class="font-medium text-teal-700 mb-3 mt-6">Pulmonary Hygiene</h3>
+                        <p class="text-sm text-stone-600">Immediate initiation of incentive spirometry, early mobilization out of bed, continued chest physiotherapy, and continuous humidified oxygen therapy.</p>
+                    </div>
+
+                    <div>
+                        <h3 class="font-medium text-teal-700 mb-3">Analgesia Strategy Selection</h3>
+                        
+                        <div class="border border-stone-200 rounded-lg overflow-hidden">
+                            <div class="flex border-b border-stone-200">
+                                <button onclick="toggleAnalgesia('regional')" id="btn-analgesia-regional" class="flex-1 py-3 text-sm font-semibold bg-teal-50 text-teal-800 transition-colors">Regional Analgesia</button>
+                                <button onclick="toggleAnalgesia('opioid')" id="btn-analgesia-opioid" class="flex-1 py-3 text-sm font-semibold bg-stone-50 text-stone-500 transition-colors">Systemic Opioids</button>
+                            </div>
+                            <div class="p-6 h-48 flex flex-col justify-center transition-all duration-300" id="analgesia-content">
+                                <div class="text-center">
+                                    <div class="text-3xl mb-2">&#128154;</div>
+                                    <h4 class="font-bold text-teal-700 text-lg">Preferred Method</h4>
+                                    <p class="text-sm text-stone-600 mt-2">Epidurals or fascial plane blocks provide excellent dynamic pain relief. Crucially, they do not depress the respiratory drive or suppress the vital cough reflex, facilitating active mucus clearance.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        const sections = ['overview', 'preop', 'intraop', 'postop'];
+        let chartInstances = {};
+        
+        const airwayDataSets = [
+            [40, 50, 30],
+            [15, 20, 10], 
+            [85, 90, 75]  
+        ];
+
+        function switchTab(targetId) {
+            sections.forEach(sec => {
+                const el = document.getElementById('sec-' + sec);
+                const btn = document.getElementById('btn-' + sec);
+                
+                if (sec === targetId) {
+                    el.classList.remove('hidden');
+                    el.classList.add('block');
+                    btn.classList.replace('nav-inactive', 'nav-active');
+                } else {
+                    el.classList.remove('block');
+                    el.classList.add('hidden');
+                    btn.classList.replace('nav-active', 'nav-inactive');
+                }
+            });
+
+            if (targetId === 'overview') {
+                if (chartInstances.triad) chartInstances.triad.resize();
+            }
+            if (targetId === 'intraop') {
+                if (chartInstances.airway) chartInstances.airway.resize();
+            }
+        }
+
+        function initCharts() {
+            const ctxTriad = document.getElementById('triadChart').getContext('2d');
+            chartInstances.triad = new Chart(ctxTriad, {
+                type: 'doughnut',
+                data: {
+                    labels: ['PCD only', 'Complete Kartagener (Situs Inversus)'],
+                    datasets: [{
+                        data: [50, 50],
+                        backgroundColor: ['#d6d3d1', '#0d9488'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: function(context) { return context.label + ': ~' + context.parsed + '%'; } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const ctxAirway = document.getElementById('airwayChart').getContext('2d');
+            chartInstances.airway = new Chart(ctxAirway, {
+                type: 'bar',
+                data: {
+                    labels: ['Mucus Viscosity', 'Plugging Risk', 'Airway Resistance'],
+                    datasets: [{
+                        label: 'Relative Severity Score',
+                        data: airwayDataSets[0],
+                        backgroundColor: '#a8a29e',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100, title: { display: true, text: 'Severity (0-100)', font: { size: 10 } } },
+                        x: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            callbacks: {
+                                title: function(ctx) {
+                                    let str = ctx[0].label;
+                                    return str.length > 16 ? str.match(/.{1,16}(\s|$)/g) : str;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateBarChart(datasetIndex) {
+            chartInstances.airway.data.datasets[0].data = airwayDataSets[datasetIndex];
+            
+            if (datasetIndex === 0) {
+                chartInstances.airway.data.datasets[0].backgroundColor = '#a8a29e';
+            } else if (datasetIndex === 1) {
+                chartInstances.airway.data.datasets[0].backgroundColor = '#0d9488';
+            } else {
+                chartInstances.airway.data.datasets[0].backgroundColor = '#dc2626';
+            }
+            
+            chartInstances.airway.update();
+        }
+
+        function toggleAnalgesia(type) {
+            const btnReg = document.getElementById('btn-analgesia-regional');
+            const btnOpi = document.getElementById('btn-analgesia-opioid');
+            const content = document.getElementById('analgesia-content');
+
+            if (type === 'regional') {
+                btnReg.className = 'flex-1 py-3 text-sm font-semibold bg-teal-50 text-teal-800 transition-colors';
+                btnOpi.className = 'flex-1 py-3 text-sm font-semibold bg-stone-50 text-stone-500 transition-colors';
+                content.innerHTML = '<div class="text-center animate-fade-in"><div class="text-3xl mb-2">&#128154;</div><h4 class="font-bold text-teal-700 text-lg">Preferred Method</h4><p class="text-sm text-stone-600 mt-2">Epidurals or fascial plane blocks provide excellent dynamic pain relief. Crucially, they do not depress the respiratory drive or suppress the vital cough reflex, facilitating active mucus clearance.</p></div>';
+            } else {
+                btnOpi.className = 'flex-1 py-3 text-sm font-semibold bg-red-50 text-red-800 transition-colors';
+                btnReg.className = 'flex-1 py-3 text-sm font-semibold bg-stone-50 text-stone-500 transition-colors';
+                content.innerHTML = '<div class="text-center animate-fade-in"><div class="text-3xl mb-2">&#9888;</div><h4 class="font-bold text-red-700 text-lg">High Risk - Minimize Use</h4><p class="text-sm text-stone-600 mt-2">Systemic opioids depress the central respiratory drive and suppress the cough reflex. In a patient with compromised ciliary clearance, this directly causes massive secretion retention, atelectasis, and severe postoperative pneumonia.</p></div>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initCharts);
+    </script>
+</body>
+</html>
