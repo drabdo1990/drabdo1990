@@ -1,0 +1,674 @@
+import React, { useState } from 'react';
+import { Printer, ChevronDown, ChevronUp, AlertTriangle, Info, ShieldAlert, Activity, Baby, Stethoscope, Syringe, PersonStanding } from 'lucide-react';
+
+// --- HELPER COMPONENTS ---
+
+const Arrow = ({ type = 'default' }) => {
+  const colors = {
+    default: 'text-slate-400',
+    green: 'text-green-600',
+    red: 'text-red-500',
+    purple: 'text-purple-600',
+  };
+  return <div className={`text-2xl font-bold my-1 leading-none ${colors[type]}`}>↓</div>;
+};
+
+const Badge = ({ type = 'default', children }) => {
+  const colors = {
+    default: 'bg-[#1a1a2e]',
+    p: 'bg-[#2980b9]',
+    o: 'bg-[#8e44ad]',
+  };
+  return (
+    <span className={`text-[10px] font-extrabold text-white rounded px-1.5 py-0.5 mr-2 align-middle ${colors[type]}`}>
+      {children}
+    </span>
+  );
+};
+
+const Tag = ({ type = 'default', children }) => {
+  const colors = {
+    default: 'bg-[#eaf0fb] text-[#333344]',
+    w: 'bg-[#fef9e7] text-[#7a5c00]',
+    d: 'bg-[#fdecea] text-[#990000]',
+    g: 'bg-[#eafaf1] text-[#1a5c30]',
+    p: 'bg-[#ebf5fb] text-[#154360]',
+    obs: 'bg-[#f5eef8] text-[#4a235a]',
+  };
+  return (
+    <span className={`inline-block rounded-lg px-2 py-0.5 text-[11px] font-bold mr-1 mb-1 ${colors[type]}`}>
+      {children}
+    </span>
+  );
+};
+
+const FlowBox = ({ title, subtitle, type = 'start', children, rounded = 'rounded-xl', customClass = '' }) => {
+  const [open, setOpen] = useState(false);
+
+  const styles = {
+    start: 'bg-[#1a1a2e] text-white border-[#1a1a2e]',
+    assess: 'bg-[#eaf0fb] border-[#5588bb] text-slate-800',
+    plan: 'bg-[#eafaf1] border-[#27ae60] text-slate-800',
+    warn: 'bg-[#fef9e7] border-[#e67e22] text-slate-800',
+    danger: 'bg-[#fdecea] border-[#e74c3c] text-slate-800',
+    cico: 'bg-[#e74c3c] text-white border-[#c0392b] cico-pulse',
+    peds: 'bg-[#ebf5fb] border-[#2980b9] text-slate-800',
+    obs: 'bg-[#f5eef8] border-[#8e44ad] text-slate-800',
+    obs2: 'bg-[#8e44ad] text-white border-[#6c3483]',
+  };
+
+  return (
+    <div className="flex flex-col items-center w-full break-inside-avoid">
+      <div
+        onClick={() => setOpen(!open)}
+        className={`p-3 text-center cursor-pointer border-2 max-w-xl w-full transition-all duration-150 hover:-translate-y-px hover:shadow-lg relative select-none print:shadow-none print:translate-y-0 ${rounded} ${styles[type]} ${customClass}`}
+      >
+        <div className="font-bold text-sm mb-1">{title}</div>
+        {subtitle && <div className="text-xs opacity-85">{subtitle}</div>}
+        <div className="text-[10px] opacity-60 mt-1.5 italic flex items-center justify-center gap-1 print:hidden">
+          Click to expand {open ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+        </div>
+      </div>
+      <div className={`bg-white border border-slate-200 rounded-xl p-4 mt-2 max-w-xl w-full text-sm text-left shadow-sm ${open ? 'block' : 'hidden print:block'}`}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const SectionHeader = ({ children, type = 'default' }) => {
+  const colors = {
+    default: 'text-slate-800 border-slate-200',
+    p: 'text-[#2980b9] border-[#aed6f1]',
+    o: 'text-[#8e44ad] border-[#d2b4de]',
+  };
+  return (
+    <h3 className={`text-base font-extrabold mt-6 mb-3 text-center pb-2 border-b-2 ${colors[type]}`}>
+      {children}
+    </h3>
+  );
+};
+
+const Alert = ({ type = 'y', children }) => {
+  const colors = {
+    r: 'bg-[#fdecea] border-[#e74c3c] text-[#900]',
+    y: 'bg-[#fef9e7] border-[#e67e22] text-[#7a5c00]',
+    p: 'bg-[#ebf5fb] border-[#2980b9] text-[#154360]',
+    obs: 'bg-[#f5eef8] border-[#8e44ad] text-[#4a235a]',
+  };
+  return (
+    <div className={`rounded-xl p-4 mb-4 text-sm leading-relaxed border-2 ${colors[type]}`}>
+      {children}
+    </div>
+  );
+};
+
+const Th = ({ children, type = 'default', colSpan }) => {
+  const bg = type === 'p' ? 'bg-[#2980b9]' : type === 'o' ? 'bg-[#8e44ad]' : 'bg-[#1a1a2e]';
+  return <th colSpan={colSpan} className={`${bg} text-white p-2 text-left font-semibold`}>{children}</th>;
+};
+
+// --- TABS CONTENT COMPONENTS ---
+
+const AlgoTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <div className="flex gap-4 flex-wrap justify-center mb-6 print:hidden">
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-600"><div className="w-3 h-3 rounded-sm bg-[#1a1a2e]"></div>Start/End</div>
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-600"><div className="w-3 h-3 rounded-sm bg-[#5588bb]"></div>Assess</div>
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-600"><div className="w-3 h-3 rounded-sm bg-[#27ae60]"></div>Plan A–C (Success)</div>
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-600"><div className="w-3 h-3 rounded-sm bg-[#e67e22]"></div>Caution / Decision</div>
+      <div className="flex items-center gap-1.5 text-[11px] text-slate-600"><div className="w-3 h-3 rounded-sm bg-[#e74c3c]"></div>Emergency / Failure</div>
+    </div>
+
+    <div className="flex flex-col items-center">
+      <FlowBox title="Patient Requires Airway Management" subtitle="Emergent · Semi-Elective · Elective" type="start">
+        <h4 className="font-bold mb-2">Indications for Airway Intervention</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Failure to maintain airway</b> — obstruction, loss of protective reflexes (GCS &lt;8)</li>
+          <li><b>Failure to oxygenate</b> — SpO₂ &lt;90% despite high-flow O₂</li>
+          <li><b>Failure to ventilate</b> — rising PaCO₂, respiratory fatigue, exhaustion</li>
+          <li><b>Anticipated deterioration</b> — angioedema, burns, expanding hematoma, anaphylaxis</li>
+          <li><b>Specific populations:</b> see Pediatric and Obstetric tabs for adapted thresholds</li>
+        </ul>
+      </FlowBox>
+
+      <Arrow />
+
+      <FlowBox title="📋 Airway Assessment" subtitle="LEMON · MOANS · RODS · SHORT · MACOCHA" type="assess">
+        <h4 className="font-bold mb-2">Validated Prediction Tools</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>LEMON</b> (difficult laryngoscopy): Look, Evaluate 3-3-2, Mallampati, Obstruction, Neck mobility</li>
+          <li><b>MOANS</b> (difficult BVM): Mask seal, Obesity/Obstruction, Age &gt;55, No teeth, Stiff lungs</li>
+          <li><b>RODS</b> (difficult SGA): Restricted mouth opening, Obstruction, Distorted airway, Stiff</li>
+          <li><b>SHORT</b> (difficult cricothyrotomy): Surgery/scar, Hematoma, Obesity, Radiation, Tumour</li>
+          <li><b>MACOCHA score ≥3</b> predicts difficult ICU intubation — AUC 0.87</li>
+        </ul>
+        <div className="mt-3">
+          <Tag>Call for help early</Tag> <Tag>Equipment check</Tag> <Tag>Sniffing/optimal position</Tag> <Tag>Consent patient</Tag>
+        </div>
+      </FlowBox>
+
+      <Arrow />
+
+      <FlowBox title="⚠ Anticipated Difficult Airway?" subtitle="Based on assessment findings + history" type="warn" rounded="rounded-full">
+        <h4 className="font-bold mb-2">Red-Flag Features Suggesting Difficult Airway</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Mallampati III/IV · inter-incisor gap &lt;3 cm · thyromental distance &lt;6 cm</li>
+          <li>BMI &gt;35 · short neck · previous documented difficult intubation</li>
+          <li>Airway pathology: mass, abscess, angioedema, Ludwig's angina, C-spine disease</li>
+          <li>Trauma: facial/neck, blood/vomit in airway, C-spine precautions (neutral inline)</li>
+          <li><b>Obstetric:</b> Mallampati worsens 1–2 classes in labour — reassess late</li>
+          <li><b>Pediatric:</b> different anatomical landmarks — see Pediatric tab</li>
+        </ul>
+      </FlowBox>
+
+      <div className="flex gap-4 justify-center w-full flex-wrap my-2">
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#eafaf1] text-[#1e8449] border border-[#27ae60]">YES — Anticipated Difficult</div>
+          <Arrow type="green" />
+          <FlowBox title="Awake Intubation Strategy" subtitle="Maintain spontaneous breathing throughout" type="warn">
+            <h4 className="font-bold mb-2">Awake Intubation Options (DAS 2015)</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><b>Awake flexible bronchoscopy (FOB)</b> — gold standard for anticipated difficult airway</li>
+              <li><b>Awake video laryngoscopy</b> — faster; comparable in select cases</li>
+              <li><b>Awake tracheostomy</b> — severe obstruction where scope passage is unsafe</li>
+            </ul>
+            <p className="mt-3 text-xs leading-relaxed"><b>Topicalisation:</b> 4% lidocaine (max 9 mg/kg total); spray-as-you-go or nebulisation.<br/>
+            <b>Sedation options:</b> Remifentanil TCI or dexmedetomidine infusion.</p>
+            <div className="mt-2"><Tag type="w">Obstetric: awake FOB preferred if time allows</Tag></div>
+          </FlowBox>
+        </div>
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#fdecea] text-[#922b21] border border-[#e74c3c]">NO — Proceed to RSI</div>
+          <Arrow type="red" />
+          <FlowBox title={<><Badge>PLAN A</Badge>Preoxygenation → RSI</>} subtitle="Target SpO₂ >95%, EtO₂ >85%" type="plan">
+            <h4 className="font-bold mb-2">Preoxygenation (DAS 2015)</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>3 min tidal breathing on 15 L/min NRB mask <b>OR</b> 8 vital capacity breaths</li>
+              <li><b>High-flow nasal oxygen (HFNO) 60 L/min</b> during laryngoscopy (apnoeic oxygenation)</li>
+              <li>Head-up 20–30° — reduces aspiration risk and improves FRC</li>
+              <li>BVM with PEEP valve (5–10 cmH₂O) if SpO₂ marginal before RSI</li>
+              <li><b>Obstetric:</b> desaturation much faster — aggressive preoxygenation mandatory</li>
+              <li><b>Pediatric:</b> safe apnoea as short as 60–100 s in neonates</li>
+            </ul>
+          </FlowBox>
+        </div>
+      </div>
+
+      <Arrow />
+
+      <FlowBox title={<><Badge>PLAN A</Badge>Direct / Video Laryngoscopy — Max 2 Attempts</>} subtitle="VL preferred · BURP · Bougie · Full NMB confirmed (TOF=0)" type="plan">
+        <h4 className="font-bold mb-2">Optimising Intubation Attempts</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Video laryngoscopy (VL)</b> recommended as first-line in predicted difficult airway</li>
+          <li><b>Bougie use:</b> 98% vs 87% first-pass success vs. stylet</li>
+          <li><b>BURP</b> (Backward, Upward, Rightward Pressure) or bimanual laryngoscopy</li>
+          <li>Limit to <b>maximum 2 intubation attempts</b> before declaring failure</li>
+          <li>Ensure full neuromuscular blockade at each attempt</li>
+          <li>Call for help before second attempt if first failed</li>
+        </ul>
+        <div className="mt-3"><Tag>CL grade I–II = favourable</Tag> <Tag type="w">CL grade III–IV = difficult</Tag></div>
+      </FlowBox>
+
+      <div className="flex gap-4 justify-center w-full flex-wrap my-2">
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#eafaf1] text-[#1e8449] border border-[#27ae60]">SUCCESS</div>
+          <Arrow type="green" />
+          <FlowBox title="Confirm ETT — Capnography" subtitle="Gold-standard confirmation · CXR" type="plan">
+            <h4 className="font-bold mb-2">ETT Position Confirmation</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><b>Waveform capnography</b> — mandatory; 100% specific in perfusing rhythm</li>
+              <li>Bilateral breath sounds auscultation</li>
+              <li>Symmetric chest rise & SpO₂ improvement</li>
+              <li>Chest X-ray: ETT tip should be 3–5 cm above carina</li>
+            </ul>
+          </FlowBox>
+        </div>
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#fdecea] text-[#922b21] border border-[#e74c3c]">FAILED ×2</div>
+          <Arrow type="red" />
+          <FlowBox title="CALL FOR HELP · Declare C.I." subtitle="Maintain oxygenation. Do not persist." type="warn">
+            <h4 className="font-bold mb-2">After Failed Intubation</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Stop attempting intubation — each additional attempt worsens conditions</li>
+              <li>Maintain oxygen delivery via face mask</li>
+              <li>Call senior anaesthetist / ENT / airway team NOW</li>
+              <li>Declare failure aloud</li>
+            </ul>
+          </FlowBox>
+        </div>
+      </div>
+
+      <Arrow />
+
+      <FlowBox title={<><Badge>PLAN B</Badge>Supraglottic Airway (SGA / LMA)</>} subtitle="2nd-generation SGA preferred · Max 2 attempts" type="warn">
+        <h4 className="font-bold mb-2">Supraglottic Airway Devices</h4>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>2nd-generation SGA</b> (i-gel, LMA ProSeal) preferred — incorporate gastric drainage</li>
+          <li>i-gel: no inflatable cuff; insertion success rate ~97%</li>
+          <li>Can be used as conduit for bronchoscope-guided intubation</li>
+          <li><b>Obstetric:</b> SGA is not a substitute for RSI in full-stomach patient</li>
+          <li><b>Pediatric:</b> i-gel validated ≥2 kg</li>
+        </ul>
+      </FlowBox>
+
+      <div className="flex gap-4 justify-center w-full flex-wrap my-2">
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#eafaf1] text-[#1e8449] border border-[#27ae60]">VENTILATING</div>
+          <Arrow type="green" />
+          <FlowBox title="Maintain O₂ via SGA" subtitle="Awaken · Plan definitive airway" type="plan">
+            <h4 className="font-bold mb-2">Options Once Oxygenating</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><b>Elective case:</b> Wake patient up → plan definitive airway in controlled setting</li>
+              <li><b>Emergency case:</b> Attempt intubation via SGA conduit with flexible bronchoscope</li>
+              <li><b>Obstetric:</b> if CS must proceed with SGA → make explicit decision (see tab)</li>
+            </ul>
+          </FlowBox>
+        </div>
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#fdecea] text-[#922b21] border border-[#e74c3c]">NOT VENTILATING</div>
+          <Arrow type="red" />
+          <FlowBox title={<><Badge>PLAN C</Badge>Optimise Face Mask</>} subtitle="2-person · OPA/NPA · Sugammadex?" type="danger">
+            <h4 className="font-bold mb-2">Plan C — Face Mask Ventilation</h4>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Two-person BVM technique</li>
+              <li>Insert oropharyngeal (OPA) and nasopharyngeal (NPA) airways</li>
+              <li>PEEP valve 5–10 cmH₂O</li>
+              <li><b>Sugammadex 16 mg/kg IV</b> if rocuronium used to reverse block</li>
+            </ul>
+          </FlowBox>
+        </div>
+      </div>
+
+      <Arrow type="red" />
+
+      <FlowBox title="🚨 CICO — Cannot Intubate, Cannot Oxygenate" subtitle="PLAN D → Immediate Front-of-Neck Access (FONA)" type="cico">
+        <h4 className="font-bold mb-2 text-red-700">PLAN D — Emergency Front-of-Neck Access</h4>
+        <p className="mb-3 font-semibold text-red-600">Do not delay FONA. Each minute of hypoxia causes irreversible neurological damage.</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li><b>Scalpel–Bougie–Tube technique (DAS 2015):</b>
+            <ol className="list-decimal pl-5 mt-1">
+              <li>Extend neck; identify CTM using "laryngeal handshake"</li>
+              <li>Horizontal stab incision through skin <b>and</b> CTM with size 10 scalpel</li>
+              <li>Hook caudal tracheal ring; maintain caudal traction</li>
+              <li>Insert bougie caudally through CTM incision</li>
+              <li>Railroad 6.0 mm cuffed ETT over bougie into trachea</li>
+              <li>Inflate cuff, ventilate, confirm capnography</li>
+            </ol>
+          </li>
+          <li><b>Pediatric CICO:</b> needle cricothyrotomy preferred &lt;8 yrs</li>
+        </ul>
+        <div className="mt-3">
+          <Tag type="d">Declare CICO</Tag> <Tag type="d">Call ENT</Tag> <Tag type="d">Document</Tag>
+        </div>
+      </FlowBox>
+    </div>
+  </div>
+);
+
+const AssessTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <SectionHeader>MACOCHA Score — Difficult Intubation in ICU</SectionHeader>
+    <p className="text-xs text-center text-slate-500 mb-4">De Jong et al., AJRCCM 2013 · Sensitivity 73%, Specificity 89% at cut-off ≥3</p>
+    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th>Criterion</Th><Th>Points</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2">Mallampati score III or IV</td><td className="p-2 font-mono">5</td></tr>
+          <tr><td className="p-2">Obstructive Sleep Apnoea syndrome</td><td className="p-2 font-mono">2</td></tr>
+          <tr className="bg-slate-50"><td className="p-2">Reduced mouth opening (&lt;3 cm)</td><td className="p-2 font-mono">1</td></tr>
+          <tr><td className="p-2">Coma (GCS ≤8)</td><td className="p-2 font-mono">1</td></tr>
+          <tr className="bg-slate-50"><td className="p-2">Hypoxia (SpO₂ &lt;80% before intubation)</td><td className="p-2 font-mono">1</td></tr>
+          <tr><td className="p-2">Non-anaesthetist operator</td><td className="p-2 font-mono">1</td></tr>
+          <tr className="bg-slate-50"><td className="p-2">Cervical spine limitation</td><td className="p-2 font-mono">1</td></tr>
+          <tr className="bg-[#fef9e7] font-bold"><td className="p-2">Score ≥3 = Difficult Intubation predicted</td><td className="p-2">Max 12</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <SectionHeader>LEMON Assessment — Emergency Airway</SectionHeader>
+    <p className="text-xs text-center text-slate-500 mb-4">Reed et al., Acad Emerg Med 2005</p>
+    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th>Letter</Th><Th>Criterion Assessed</Th><Th>Positive Finding</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2 font-bold text-lg">L</td><td className="p-2">Look externally</td><td className="p-2">Facial trauma, large tongue, receding jaw</td></tr>
+          <tr><td className="p-2 font-bold text-lg">E</td><td className="p-2">Evaluate 3-3-2</td><td className="p-2">&lt;3 / &lt;3 / &lt;2 fingers respectively</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold text-lg">M</td><td className="p-2">Mallampati</td><td className="p-2">Class III or IV</td></tr>
+          <tr><td className="p-2 font-bold text-lg">O</td><td className="p-2">Obstruction</td><td className="p-2">Mass, abscess, angioedema</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold text-lg">N</td><td className="p-2">Neck mobility</td><td className="p-2">Extension &lt;35° or restricted</td></tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <SectionHeader>Additional Mnemonics</SectionHeader>
+    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th>Mnemonic</Th><Th>For Predicting</Th><Th>Criteria</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2 font-bold">MOANS</td><td className="p-2">Difficult BVM</td><td className="p-2 text-xs">Mask seal poor · Obesity · Age &gt;55 · No teeth · Stiff</td></tr>
+          <tr><td className="p-2 font-bold">RODS</td><td className="p-2">Difficult SGA</td><td className="p-2 text-xs">Restricted mouth opening · Obstruction · Distorted · Stiff</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold">SHORT</td><td className="p-2">Difficult cric</td><td className="p-2 text-xs">Surgery/scar · Hematoma · Obesity · Radiation · Tumour</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const DrugsTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <SectionHeader>RSI Drug Reference — Adults</SectionHeader>
+    <p className="text-xs text-center text-slate-500 mb-4">ACEP/EMCREG Clinical Policy · Always verify against local formulary</p>
+    
+    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th>Drug</Th><Th>Adult Dose (IV)</Th><Th>Onset</Th><Th>Key Notes & Cautions</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2 font-bold">Etomidate</td><td className="p-2">0.3 mg/kg</td><td className="p-2">30–60 s</td><td className="p-2 text-xs">Stable hemodynamics; adrenal suppression</td></tr>
+          <tr><td className="p-2 font-bold">Ketamine</td><td className="p-2">1.5–2 mg/kg</td><td className="p-2">45–60 s</td><td className="p-2 text-xs">Choice in hypotension/asthma; preserves reflexes</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold">Propofol</td><td className="p-2">1–2 mg/kg</td><td className="p-2">15–30 s</td><td className="p-2 text-xs">Avoid in hypotension; preferred elective RSI</td></tr>
+          <tr><td className="p-2 font-bold">Thiopentone</td><td className="p-2">3–5 mg/kg</td><td className="p-2">20–30 s</td><td className="p-2 text-xs">Reduces ICP; vasodilation; historical obstetric standard</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold text-red-600">Succinylcholine</td><td className="p-2">1.5 mg/kg</td><td className="p-2">45–60 s</td><td className="p-2 text-xs">Fastest offset (~10 min); CI: burns, crush injury, hyperkalaemia</td></tr>
+          <tr><td className="p-2 font-bold">Rocuronium</td><td className="p-2">1.2 mg/kg</td><td className="p-2">60–90 s</td><td className="p-2 text-xs">Non-depolarising; fully reversible with sugammadex</td></tr>
+          <tr className="bg-[#fef9e7] font-semibold"><td className="p-2">Sugammadex</td><td className="p-2">16 mg/kg (Rescue)<br/>4 mg/kg (Reversal)</td><td className="p-2">~3 min</td><td className="p-2 text-xs">Reverses rocuronium; NOT for succinylcholine; safe in pregnancy</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p className="text-xs text-center text-slate-500 mt-4 italic">See Pediatric tab for weight-based dosing in children. These are adult reference doses only.</p>
+  </div>
+);
+
+const CicoTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <h3 className="text-xl font-extrabold mt-6 mb-3 text-center pb-2 border-b-2 text-red-600 border-red-200 flex items-center justify-center gap-2">
+      <AlertTriangle /> CICO — Front-of-Neck Access
+    </h3>
+    <p className="text-xs text-center text-slate-500 mb-4">DAS 2015 · NAP4 2011 · CICO incidence ~1:22,000 anaesthetics</p>
+
+    <Alert type="r">
+      <b className="flex items-center gap-2"><ShieldAlert size={18}/> Scalpel–Bougie–Tube Technique (DAS 2015 First-Line FONA)</b>
+      <ol className="list-decimal pl-5 mt-3 space-y-2 font-medium">
+        <li>Extend neck; identify CTM by <b>"laryngeal handshake"</b> (thumb & middle finger stabilise thyroid cartilage; index finger identifies CTM).</li>
+        <li>Horizontal stab incision through skin <b>AND</b> CTM with size 10 scalpel.</li>
+        <li>Hook caudal tracheal ring with hooked index finger or tracheal hook; maintain firm <b>caudal</b> traction.</li>
+        <li>Insert bougie caudally through the CTM incision into trachea (feel for tracheal rings).</li>
+        <li>Railroad <b>6.0 mm cuffed ETT</b> over bougie into trachea.</li>
+        <li>Remove bougie; inflate cuff; ventilate immediately.</li>
+        <li>Confirm with <b>waveform capnography</b>; secure tube; obtain CXR.</li>
+      </ol>
+    </Alert>
+
+    <div className="overflow-x-auto border border-slate-200 rounded-xl my-6">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th>Technique</Th><Th>Evidence Level</Th><Th>Time to Vent</Th><Th>Limitation</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2 font-bold">Scalpel-bougie-tube</td><td className="p-2 text-xs">DAS 2015 Grade B</td><td className="p-2">~30–60 s</td><td className="p-2 text-xs">Requires deliberate practice</td></tr>
+          <tr><td className="p-2 font-bold">Commercial kits</td><td className="p-2 text-xs">Acceptable alternative</td><td className="p-2">~60–90 s</td><td className="p-2 text-xs">More procedural steps</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold">Needle cric</td><td className="p-2 text-xs">NAP4: 65% failure in adults</td><td className="p-2">~30 s</td><td className="p-2 text-xs">Barotrauma; temporising only</td></tr>
+          <tr className="bg-[#ebf5fb] font-semibold"><td className="p-2">Pediatric (&lt;8 yrs)</td><td className="p-2 text-xs">Needle preferred (CTM too small)</td><td className="p-2">Variable</td><td className="p-2 text-xs">High failure rate; 20G in neonates</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <Alert type="y">
+      <b>NAP4 Key Findings</b> (Cook et al., 2011):
+      <ul className="list-disc pl-5 mt-2 space-y-1">
+        <li>25% of CICO events resulted in death or hypoxic brain damage.</li>
+        <li>Majority of deaths associated with <b>delayed decision to perform FONA</b>.</li>
+        <li>Needle cricothyrotomy failed in majority of adult cases when used as primary CICO rescue.</li>
+        <li>Poor identification of CTM was a recurrent failure point.</li>
+      </ul>
+    </Alert>
+  </div>
+);
+
+const PedsTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <SectionHeader type="p"><span className="flex items-center justify-center gap-2"><Baby /> Pediatric Airway</span></SectionHeader>
+    <p className="text-xs text-center text-slate-500 mb-4">DAS Paediatric 2015 · PALS 2020</p>
+
+    <Alert type="p">
+      <b>Key Anatomical Differences vs. Adults</b>
+      <ul className="list-disc pl-5 mt-2 space-y-1.5">
+        <li><b>Large occiput:</b> requires shoulder roll in neonates/infants to achieve neutral position.</li>
+        <li><b>Larger tongue:</b> obstructs airway easily; jaw thrust highly effective.</li>
+        <li><b>Anterior, cephalad larynx:</b> steeper angle for laryngoscopy.</li>
+        <li><b>Omega-shaped epiglottis:</b> straight (Miller) blade preferred &lt;2 yrs.</li>
+        <li><b>Narrowest point at cricoid ring:</b> cuffed tube sizing and pressure critical (≤20 cmH₂O).</li>
+        <li><b>High O₂ consumption + small FRC:</b> desaturation occurs far faster.</li>
+      </ul>
+    </Alert>
+
+    <SectionHeader type="p">Equipment Sizing by Age / Weight</SectionHeader>
+    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th type="p">Age / Wt</Th><Th type="p">ETT (cuffed)</Th><Th type="p">Depth (lip)</Th><Th type="p">LMA/Blade</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2">&lt;1 kg</td><td className="p-2">2.5 (uncuffed)</td><td className="p-2">5.5–6.5 cm</td><td className="p-2 text-xs">i-gel 1 / Mil 00</td></tr>
+          <tr><td className="p-2">1–3 kg</td><td className="p-2">3.0–3.5</td><td className="p-2">7–9 cm</td><td className="p-2 text-xs">i-gel 1 / Mil 0</td></tr>
+          <tr className="bg-slate-50"><td className="p-2">3–12 mo</td><td className="p-2">3.5</td><td className="p-2">10–11 cm</td><td className="p-2 text-xs">i-gel 1.5 / Mil 1</td></tr>
+          <tr><td className="p-2">1–2 yrs</td><td className="p-2">4.0</td><td className="p-2">11–12 cm</td><td className="p-2 text-xs">i-gel 2 / Mac 1</td></tr>
+          <tr className="bg-slate-50"><td className="p-2">2–10 yrs</td><td className="p-2">(Age/4)+3.5</td><td className="p-2">(Age/2)+12</td><td className="p-2 text-xs">i-gel 2.5 / Mac 2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <SectionHeader type="p">Pediatric RSI Drugs</SectionHeader>
+    <div className="overflow-x-auto border border-slate-200 rounded-xl mb-4">
+      <table className="w-full text-sm text-left">
+        <thead>
+          <tr><Th type="p">Drug</Th><Th type="p">Dose (IV)</Th><Th type="p">Notes</Th></tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100">
+          <tr className="bg-slate-50"><td className="p-2 font-bold">Ketamine</td><td className="p-2">1–2 mg/kg</td><td className="p-2 text-xs">Drug of choice; maintains tone</td></tr>
+          <tr><td className="p-2 font-bold">Propofol</td><td className="p-2">2–3 mg/kg</td><td className="p-2 text-xs">Avoid prolonged infusion (PRIS)</td></tr>
+          <tr className="bg-slate-50"><td className="p-2 font-bold text-red-600">Succinylcholine</td><td className="p-2">2 mg/kg (≤10kg)<br/>1.5 mg/kg ({'>'}10kg)</td><td className="p-2 text-xs">Pre-treat with atropine in &lt;5 yrs to prevent bradycardia</td></tr>
+          <tr><td className="p-2 font-bold">Atropine</td><td className="p-2">0.02 mg/kg</td><td className="p-2 text-xs">Min 0.1mg; pre-RSI in neonates/infants</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+);
+
+const ObsTab = () => (
+  <div className="animate-in fade-in duration-300">
+    <SectionHeader type="o"><span className="flex items-center justify-center gap-2"><PersonStanding /> Obstetric Airway</span></SectionHeader>
+    <p className="text-xs text-center text-slate-500 mb-4">OAA/DAS 2015 · MBRRACE-UK 2022</p>
+
+    <Alert type="obs">
+      <b>Why Obstetric Airway Is Uniquely Hazardous</b>
+      <ul className="list-disc pl-5 mt-2 space-y-1">
+        <li><b>Failed intubation rate 1:224</b> (10x higher than general surgery).</li>
+        <li><b>Rapid desaturation:</b> FRC reduced 20% + O₂ consumption increased 20%.</li>
+        <li><b>Aspiration risk:</b> LOS tone reduced; Mendelson syndrome risk.</li>
+        <li><b>Mallampati worsens 1–2 classes</b> during labour due to mucosal oedema.</li>
+        <li><b>Aortocaval compression:</b> Must maintain <b>left lateral tilt 15°</b> at all times.</li>
+        <li>GA mortality 17× higher than regional anaesthesia for caesarean section.</li>
+      </ul>
+    </Alert>
+
+    <SectionHeader type="o">OAA/DAS 2015 — Obstetric Algorithm</SectionHeader>
+    <div className="flex flex-col items-center mt-4">
+      <FlowBox title={<><Badge type="o">OB 1</Badge>Pre-Anaesthetic Assessment</>} subtitle="At booking AND reassess in active labour" type="obs">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Assess early; Mallampati worsens in labour.</li>
+          <li><b>Pre-eclampsia:</b> airway can worsen rapidly.</li>
+          <li><b>BMI &gt;40:</b> highest risk; establish regional early.</li>
+        </ul>
+        <div className="mt-2"><Tag type="obs">Na Citrate PO</Tag> <Tag type="obs">Ranitidine</Tag></div>
+      </FlowBox>
+      <Arrow type="purple" />
+      <FlowBox title={<><Badge type="o">OB 2</Badge>Regional Anaesthesia Preferred</>} subtitle="Spinal · Epidural · CSE" type="obs">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Spinal fastest for category 1 CS.</li>
+          <li>Early epidural insertion in high-risk patients to avoid emergency GA.</li>
+        </ul>
+      </FlowBox>
+      <Arrow type="purple" />
+      <FlowBox title="⚠ GA Required?" subtitle="Category 1 emergency · Regional failed" type="warn" rounded="rounded-full">
+        <ul className="list-disc pl-5 space-y-1">
+          <li>Immediate threat to maternal/fetal life.</li>
+          <li>Contraindications to regional (coagulopathy, sepsis).</li>
+        </ul>
+      </FlowBox>
+
+      <div className="flex gap-4 justify-center w-full flex-wrap my-2">
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#f5eef8] text-[#4a235a] border border-[#8e44ad]">Time Allows</div>
+          <Arrow type="purple" />
+          <FlowBox title="Awake Technique" subtitle="Awake FOB preferred" type="obs">
+             <ul className="list-disc pl-5 space-y-1">
+               <li>Maintains tone and fetal O2.</li>
+               <li>Remifentanil TCI sedation (watch fetus).</li>
+             </ul>
+          </FlowBox>
+        </div>
+        <div className="flex flex-col items-center flex-1 min-w-[240px] max-w-[320px]">
+          <div className="text-[11px] font-extrabold rounded-xl px-3 py-1 bg-[#fdecea] text-[#922b21] border border-[#e74c3c]">Emergency</div>
+          <Arrow type="red" />
+          <FlowBox title={<><Badge type="o">OB RSI</Badge>Modified RSI</>} subtitle="Left tilt · Cricoid · Preox · VL" type="obs2">
+            <ul className="list-disc pl-5 space-y-1">
+              <li><b>Left lateral tilt 15°</b> mandatory.</li>
+              <li>Thiopentone 4-5mg/kg or Propofol.</li>
+              <li>Suxamethonium 1.5mg/kg or Rocuronium.</li>
+              <li>Use <b>6.0–7.0 mm cuffed ETT</b> (smaller due to oedema).</li>
+            </ul>
+          </FlowBox>
+        </div>
+      </div>
+
+      <Arrow type="red" />
+
+      <FlowBox title={<><Badge type="o">CRITICAL</Badge>Wake Up vs. Proceed?</>} subtitle="Weigh maternal AND fetal risk" type="obs">
+        <div className="overflow-x-auto mt-2">
+          <table className="w-full text-xs text-left border border-purple-200">
+            <thead>
+              <tr className="bg-[#8e44ad] text-white">
+                <th className="p-1.5">Factor</th>
+                <th className="p-1.5">Favour WAKE UP</th>
+                <th className="p-1.5">Favour PROCEED</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-purple-100">
+              <tr><td className="p-1.5 font-bold">Fetus</td><td className="p-1.5">Reassuring CTG</td><td className="p-1.5">Severe distress, bradycardia</td></tr>
+              <tr className="bg-purple-50"><td className="p-1.5 font-bold">Mother</td><td className="p-1.5">Stable; oxygenating well via SGA</td><td className="p-1.5">Haemorrhage; CICO imminent</td></tr>
+              <tr><td className="p-1.5 font-bold">Surgery</td><td className="p-1.5">Not yet incised</td><td className="p-1.5">Uterus open; baby partially out</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-2 text-xs text-[#8e44ad] font-bold">If oxygenating via SGA and no immediate fetal threat → waking up is usually safer.</p>
+      </FlowBox>
+    </div>
+  </div>
+);
+
+
+// --- MAIN APP COMPONENT ---
+
+export default function App() {
+  const [activeTab, setActiveTab] = useState('algo');
+
+  const tabs = [
+    { id: 'algo', label: 'Algorithm Flow', icon: <Activity size={14} />, color: 'hover:border-slate-400 active:bg-slate-800 active:border-slate-800 active:text-white' },
+    { id: 'assess', label: 'Assessment Tools', icon: <Stethoscope size={14} />, color: 'hover:border-slate-400' },
+    { id: 'drugs', label: 'RSI Drugs', icon: <Syringe size={14} />, color: 'hover:border-slate-400' },
+    { id: 'cico', label: 'CICO Protocol', icon: <ShieldAlert size={14} />, color: 'hover:border-red-400 hover:text-red-600' },
+    { id: 'peds', label: 'Pediatric', icon: <Baby size={14} />, color: 'hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700' },
+    { id: 'obs', label: 'Obstetric', icon: <PersonStanding size={14} />, color: 'hover:border-purple-400 hover:bg-purple-50 hover:text-purple-700' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+      <style>{`
+        @keyframes customPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(231,76,60,0.5); }
+          50% { box-shadow: 0 0 0 10px rgba(231,76,60,0); }
+        }
+        .cico-pulse { animation: customPulse 2s infinite; }
+      `}</style>
+
+      {/* TOP BAR */}
+      <div className="bg-[#1a1a2e] text-white p-4 md:px-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sticky top-0 z-50 shadow-md print:hidden">
+        <div>
+          <h1 className="text-lg md:text-xl font-extrabold tracking-tight">Airway Management Algorithm</h1>
+          <p className="text-xs text-slate-300 mt-0.5">Adult · Pediatric · Obstetric | Evidence-Based Clinical Reference</p>
+        </div>
+        <button 
+          onClick={() => window.print()} 
+          className="bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-white/20 transition-colors flex items-center gap-2 whitespace-nowrap"
+        >
+          <Printer size={14} /> Print / Save PDF
+        </button>
+      </div>
+
+      <div className="max-w-4xl mx-auto p-4 pb-16 print:p-0 print:max-w-none">
+        
+        {/* DISCLAIMER & SOURCES */}
+        <div className="print:hidden">
+          <div className="bg-[#fff3cd] border-2 border-[#ffc107] rounded-xl p-3 text-xs leading-relaxed text-[#5a4000] mb-4 shadow-sm flex gap-3 items-start">
+            <Info className="shrink-0 mt-0.5" size={16} />
+            <div>
+              <b className="text-[13px]">⚕ Clinical Disclaimer:</b> This tool is for educational and reference purposes only. It does not replace clinical judgment, institutional protocols, or direct patient assessment. In emergencies, act — do not wait for a reference tool.
+            </div>
+          </div>
+          
+          <div className="bg-[#eaf0fb] border border-[#aac4e8] rounded-xl p-3 text-xs leading-relaxed text-[#1a3a5c] mb-6 shadow-sm">
+            <b>Evidence Base:</b> ASA DAA 2022 · DAS 2015 · OAA/DAS 2015 · DAS Paediatric 2015 · AHA PALS 2020 · MACOCHA 2013 · NAP4 2011 · MBRRACE-UK 2022
+          </div>
+        </div>
+
+        {/* TABS NAVIGATION */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6 print:hidden">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            let activeClass = isActive ? 'bg-[#1a1a2e] text-white border-[#1a1a2e] shadow-md' : 'bg-white text-slate-600 border-slate-300';
+            
+            if (isActive && tab.id === 'peds') activeClass = 'bg-[#2980b9] text-white border-[#2980b9] shadow-md';
+            if (isActive && tab.id === 'obs') activeClass = 'bg-[#8e44ad] text-white border-[#8e44ad] shadow-md';
+            if (isActive && tab.id === 'cico') activeClass = 'bg-[#e74c3c] text-white border-[#e74c3c] shadow-md';
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border-2 transition-all duration-200 select-none ${activeClass} ${!isActive ? tab.color : ''}`}
+              >
+                {tab.icon} {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* TAB CONTENT */}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 md:p-6 print:shadow-none print:border-none print:p-0">
+          {activeTab === 'algo' && <AlgoTab />}
+          {activeTab === 'assess' && <AssessTab />}
+          {activeTab === 'drugs' && <DrugsTab />}
+          {activeTab === 'cico' && <CicoTab />}
+          {activeTab === 'peds' && <PedsTab />}
+          {activeTab === 'obs' && <ObsTab />}
+        </div>
+
+        {/* FOOTER */}
+        <div className="text-center mt-12 pt-6 border-t border-slate-200 text-[11px] text-slate-400 leading-relaxed print:mt-6 print:pt-4">
+          <p className="font-bold text-slate-500">Airway Management Algorithm — Adult · Pediatric · Obstetric</p>
+          <p>Evidence Base: ASA 2022 · DAS 2015 · OAA/DAS 2015 · DAS Paediatric 2015 · PALS 2020</p>
+          <p className="mt-2">Generated by AI based on provided clinical literature. Compiled for <b>Abdelwahab</b>.</p>
+        </div>
+
+      </div>
+    </div>
+  );
+}
