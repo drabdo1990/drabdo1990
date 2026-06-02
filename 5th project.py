@@ -1,12 +1,6 @@
-total_seconds = input(" please enter total course seconds \n")
-int_seconds = int(total_seconds)
-
-# CONVERSION 
-
+int_seconds =int(input(" please enter total course seconds \n"))
 hours = int_seconds // 3600
 minutes = (int_seconds % 3600) // 60
 seconds = minutes % 60
-
-# PRIBT RESULTS 
-print ( " your course is " + str(hours) + " hours and "+ str(minutes) + " minutes and "+ str(seconds)+ " seconds long")
+print ( f" your course is {hours} hours and {minutes} minutes and {seconds} seconds long")
 
