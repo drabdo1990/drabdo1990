@@ -1,6 +1,8 @@
-- 👋 Hi, I’m @drabdo1990
+- 👋 Hi, my name is mohammed mansour
+- I'm anesthesiologist.
 - 👀 I’m interested in ...programming
 - 🌱 I’m currently learning python.
+- i'm hoping to rech an acceptable level in programming.
 - i'm currently writing some small codes on python as small projects on my learning process.
 - hoping to encourage and guide me
 
